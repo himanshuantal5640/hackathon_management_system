@@ -8,9 +8,13 @@ import {
   LogOut, 
   Menu, 
   X, 
-  ShieldCheck, 
-  Sparkles,
-  LayoutDashboard
+  LayoutDashboard,
+  PlusCircle,
+  FolderKanban,
+  Compass,
+  UserCheck,
+  Users,
+  UserPlus
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -46,6 +50,9 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
 
+  const isOrganizer = user?.role === 'organizer' || user?.role === 'admin';
+  const isParticipant = user?.role === 'participant' || user?.role === 'admin';
+
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,7 +73,7 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center space-x-1">
             <Link
               to="/"
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                 isActive('/')
                   ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
@@ -75,39 +82,106 @@ const Navbar = () => {
               Home
             </Link>
 
-            {isAuthenticated && (
-              <Link
-                to="/profile"
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                  isActive('/profile')
-                    ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-                }`}
-              >
-                Profile Dashboard
-              </Link>
+            <Link
+              to="/hackathons"
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                isActive('/hackathons')
+                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Explore</span>
+            </Link>
+
+            {/* Participant Links */}
+            {isAuthenticated && isParticipant && (
+              <>
+                <Link
+                  to="/participant/dashboard"
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/participant/dashboard')
+                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Participant Hub</span>
+                </Link>
+
+                <Link
+                  to="/participant/my-team"
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/participant/my-team')
+                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5 text-purple-400" />
+                  <span>My Team</span>
+                </Link>
+              </>
+            )}
+
+            {/* Organizer Links */}
+            {isAuthenticated && isOrganizer && (
+              <>
+                <Link
+                  to="/organizer/dashboard"
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/organizer/dashboard')
+                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Organizer Console</span>
+                </Link>
+
+                <Link
+                  to="/organizer/registrations"
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/organizer/registrations')
+                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <UserCheck className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Registrations</span>
+                </Link>
+              </>
             )}
           </nav>
 
-          {/* User Profile / Auth Action Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* User Profile / Action Buttons */}
+          <div className="hidden md:flex items-center space-x-3">
+            {isAuthenticated && isOrganizer && (
+              <Link
+                to="/organizer/create"
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all flex items-center gap-1"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>New Event</span>
+              </Link>
+            )}
+
             {isAuthenticated ? (
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center space-x-3 p-1.5 pr-3 rounded-full glass-card hover:bg-slate-800 transition-all border border-slate-700/60"
+                  className="flex items-center space-x-2.5 p-1 pr-3 rounded-full glass-card hover:bg-slate-800 transition-all border border-slate-700/60"
                 >
                   <img
                     src={user.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
                     alt={user.name}
-                    className="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-500/40"
+                    className="w-7 h-7 rounded-full object-cover ring-2 ring-indigo-500/40"
                   />
                   <div className="text-left leading-tight">
-                    <div className="text-xs font-semibold text-slate-200 truncate max-w-[120px]">
+                    <div className="text-xs font-semibold text-slate-200 truncate max-w-[100px]">
                       {user.name}
                     </div>
                     <span
-                      className={`inline-block px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase rounded-md border ${getRoleBadgeClass(
+                      className={`inline-block px-1.5 py-0.5 text-[9px] font-bold tracking-wide uppercase rounded-md border ${getRoleBadgeClass(
                         user.role
                       )}`}
                     >
@@ -123,6 +197,28 @@ const Navbar = () => {
                       <p className="text-xs text-slate-400">Signed in as</p>
                       <p className="text-sm font-semibold text-slate-200 truncate">{user.email}</p>
                     </div>
+
+                    {isParticipant && (
+                      <Link
+                        to="/participant/dashboard"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center space-x-2.5 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/70 hover:text-white transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-indigo-400" />
+                        <span>Participant Hub</span>
+                      </Link>
+                    )}
+
+                    {isOrganizer && (
+                      <Link
+                        to="/organizer/dashboard"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center space-x-2.5 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/70 hover:text-white transition-colors"
+                      >
+                        <FolderKanban className="w-4 h-4 text-purple-400" />
+                        <span>Organizer Console</span>
+                      </Link>
+                    )}
 
                     <Link
                       to="/profile"
@@ -147,13 +243,13 @@ const Navbar = () => {
               <div className="flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                  className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/signup"
-                  className="px-4.5 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-md shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-md shadow-indigo-500/20 transition-all"
                 >
                   Get Started
                 </Link>
@@ -183,6 +279,51 @@ const Navbar = () => {
           >
             Home
           </Link>
+          <Link
+            to="/hackathons"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+          >
+            Explore Hackathons
+          </Link>
+
+          {isAuthenticated && isParticipant && (
+            <>
+              <Link
+                to="/participant/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+              >
+                Participant Hub
+              </Link>
+              <Link
+                to="/participant/my-team"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+              >
+                My Team Workspace
+              </Link>
+            </>
+          )}
+
+          {isAuthenticated && isOrganizer && (
+            <>
+              <Link
+                to="/organizer/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-base font-medium text-purple-400 hover:bg-slate-800"
+              >
+                Organizer Dashboard
+              </Link>
+              <Link
+                to="/organizer/registrations"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-base font-medium text-purple-400 hover:bg-slate-800"
+              >
+                Manage Registrations
+              </Link>
+            </>
+          )}
 
           {isAuthenticated ? (
             <>

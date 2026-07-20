@@ -10,6 +10,9 @@ dotenv.config();
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const hackathonRoutes = require('./routes/hackathonRoutes');
+const registrationRoutes = require('./routes/registrationRoutes');
+const teamRoutes = require('./routes/teamRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 // Initialize Express App
@@ -24,7 +27,7 @@ app.use(
   cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
@@ -47,6 +50,11 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/hackathons', hackathonRoutes);
+app.use('/api/registrations', registrationRoutes);
+app.use('/api/teams', teamRoutes);
+
+
 
 // 404 Route Handler
 app.use((req, res, next) => {
