@@ -35,6 +35,15 @@ import MySubmission from './pages/MySubmission';
 import SubmissionDetails from './pages/SubmissionDetails';
 import OrganizerSubmissions from './pages/OrganizerSubmissions';
 
+// Phase 5 Judge Evaluation Pages
+import JudgeDashboard from './pages/JudgeDashboard';
+import AssignedProjects from './pages/AssignedProjects';
+import ReviewProject from './pages/ReviewProject';
+import ReviewDetails from './pages/ReviewDetails';
+import CompletedReviews from './pages/CompletedReviews';
+import AssignJudges from './pages/AssignJudges';
+import ReviewManagement from './pages/ReviewManagement';
+
 // Route Guards
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleBasedRoute from './components/RoleBasedRoute';
@@ -146,6 +155,48 @@ function App() {
               }
             />
 
+            {/* Phase 5 Judge Role Routes */}
+            <Route
+              path="judge/dashboard"
+              element={
+                <RoleBasedRoute allowedRoles={['judge', 'admin']}>
+                  <JudgeDashboard />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="judge/assigned-projects"
+              element={
+                <RoleBasedRoute allowedRoles={['judge', 'admin']}>
+                  <AssignedProjects />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="judge/review/:submissionId"
+              element={
+                <RoleBasedRoute allowedRoles={['judge', 'admin']}>
+                  <ReviewProject />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="judge/review-details/:id"
+              element={
+                <ProtectedRoute>
+                  <ReviewDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="judge/completed-reviews"
+              element={
+                <RoleBasedRoute allowedRoles={['judge', 'admin']}>
+                  <CompletedReviews />
+                </RoleBasedRoute>
+              }
+            />
+
             {/* Organizer Role Protected Routes */}
             <Route
               path="organizer/dashboard"
@@ -211,8 +262,6 @@ function App() {
                 </RoleBasedRoute>
               }
             />
-
-            {/* Phase 4 Organizer Submissions */}
             <Route
               path="organizer/submissions"
               element={
@@ -234,6 +283,40 @@ function App() {
               element={
                 <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
                   <OrganizerSubmissions />
+                </RoleBasedRoute>
+              }
+            />
+
+            {/* Phase 5 Organizer Judge Assignments & Reviews */}
+            <Route
+              path="organizer/assign-judges"
+              element={
+                <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
+                  <AssignJudges />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="organizer/assign-judges/:hackathonId"
+              element={
+                <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
+                  <AssignJudges />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="organizer/review-management"
+              element={
+                <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
+                  <ReviewManagement />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="organizer/review-details/:id"
+              element={
+                <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
+                  <ReviewDetails />
                 </RoleBasedRoute>
               }
             />

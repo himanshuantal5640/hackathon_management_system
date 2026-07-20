@@ -14,6 +14,9 @@ import {
   Compass,
   UserCheck,
   Users,
+  Award,
+  Layers,
+  FileCheck,
   UserPlus
 } from 'lucide-react';
 
@@ -52,6 +55,7 @@ const Navbar = () => {
 
   const isOrganizer = user?.role === 'organizer' || user?.role === 'admin';
   const isParticipant = user?.role === 'participant' || user?.role === 'admin';
+  const isJudge = user?.role === 'judge' || user?.role === 'admin';
 
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80">
@@ -135,6 +139,35 @@ const Navbar = () => {
               </>
             )}
 
+            {/* Judge Links */}
+            {isAuthenticated && isJudge && (
+              <>
+                <Link
+                  to="/judge/dashboard"
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/judge/dashboard')
+                      ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Award className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Judge Portal</span>
+                </Link>
+
+                <Link
+                  to="/judge/assigned-projects"
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/judge/assigned-projects')
+                      ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Assigned</span>
+                </Link>
+              </>
+            )}
+
             {/* Organizer Links */}
             {isAuthenticated && isOrganizer && (
               <>
@@ -151,31 +184,30 @@ const Navbar = () => {
                 </Link>
 
                 <Link
-                  to="/organizer/registrations"
+                  to="/organizer/assign-judges"
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/organizer/registrations')
+                    isActive('/organizer/assign-judges')
                       ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                   }`}
                 >
-                  <UserCheck className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Registrations</span>
+                  <UserPlus className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Assign Judges</span>
                 </Link>
 
                 <Link
-                  to="/organizer/submissions"
+                  to="/organizer/review-management"
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/organizer/submissions')
+                    isActive('/organizer/review-management')
                       ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                   }`}
                 >
-                  <FolderKanban className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Submissions</span>
+                  <Award className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Reviews</span>
                 </Link>
               </>
             )}
-
           </nav>
 
           {/* User Profile / Action Buttons */}
@@ -223,14 +255,14 @@ const Navbar = () => {
                       <p className="text-sm font-semibold text-slate-200 truncate">{user.email}</p>
                     </div>
 
-                    {isParticipant && (
+                    {isJudge && (
                       <Link
-                        to="/participant/dashboard"
+                        to="/judge/dashboard"
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center space-x-2.5 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/70 hover:text-white transition-colors"
                       >
-                        <LayoutDashboard className="w-4 h-4 text-indigo-400" />
-                        <span>Participant Hub</span>
+                        <Award className="w-4 h-4 text-amber-400" />
+                        <span>Judge Portal</span>
                       </Link>
                     )}
 
@@ -312,40 +344,21 @@ const Navbar = () => {
             Explore Hackathons
           </Link>
 
-          {isAuthenticated && isParticipant && (
+          {isAuthenticated && isJudge && (
             <>
               <Link
-                to="/participant/dashboard"
+                to="/judge/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+                className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
               >
-                Participant Hub
+                Judge Dashboard
               </Link>
               <Link
-                to="/participant/my-team"
+                to="/judge/assigned-projects"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+                className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
               >
-                My Team Workspace
-              </Link>
-            </>
-          )}
-
-          {isAuthenticated && isOrganizer && (
-            <>
-              <Link
-                to="/organizer/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-base font-medium text-purple-400 hover:bg-slate-800"
-              >
-                Organizer Dashboard
-              </Link>
-              <Link
-                to="/organizer/registrations"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-base font-medium text-purple-400 hover:bg-slate-800"
-              >
-                Manage Registrations
+                Assigned Projects
               </Link>
             </>
           )}

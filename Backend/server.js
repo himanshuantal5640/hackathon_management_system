@@ -15,6 +15,7 @@ const hackathonRoutes = require('./routes/hackathonRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 const teamRoutes = require('./routes/teamRoutes');
 const submissionRoutes = require('./routes/submissionRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 // Initialize Express App
@@ -59,6 +60,8 @@ app.use('/api/hackathons', hackathonRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/submissions', submissionRoutes);
+app.use('/api/reviews', reviewRoutes);
+
 
 
 
