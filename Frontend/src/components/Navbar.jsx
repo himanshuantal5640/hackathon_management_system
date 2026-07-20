@@ -1,0 +1,243 @@
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import toast from 'react-hot-toast';
+import { 
+  Trophy, 
+  User as UserIcon, 
+  LogOut, 
+  Menu, 
+  X, 
+  ShieldCheck, 
+  Sparkles,
+  LayoutDashboard
+} from 'lucide-react';
+
+const Navbar = () => {
+  const { user, isAuthenticated, logout } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success('Logged out successfully');
+      setUserDropdownOpen(false);
+      navigate('/login');
+    } catch (error) {
+      toast.error('Logout failed');
+    }
+  };
+
+  const getRoleBadgeClass = (role) => {
+    switch (role) {
+      case 'admin':
+        return 'bg-red-500/15 text-red-400 border-red-500/30';
+      case 'organizer':
+        return 'bg-purple-500/15 text-purple-400 border-purple-500/30';
+      case 'judge':
+        return 'bg-amber-500/15 text-amber-400 border-amber-500/30';
+      default:
+        return 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30';
+    }
+  };
+
+  const isActive = (path) => location.pathname === path;
+
+  return (
+    <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Brand Logo */}
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
+              <Trophy className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <span className="text-xl font-black tracking-tight text-white flex items-center gap-1">
+                Hack<span className="gradient-text">Pulse</span>
+              </span>
+            </div>
+          </Link>
+
+          {/* Desktop Nav Items */}
+          <nav className="hidden md:flex items-center space-x-1">
+            <Link
+              to="/"
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                isActive('/')
+                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              Home
+            </Link>
+
+            {isAuthenticated && (
+              <Link
+                to="/profile"
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  isActive('/profile')
+                    ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                Profile Dashboard
+              </Link>
+            )}
+          </nav>
+
+          {/* User Profile / Auth Action Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center space-x-3 p-1.5 pr-3 rounded-full glass-card hover:bg-slate-800 transition-all border border-slate-700/60"
+                >
+                  <img
+                    src={user.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full object-cover ring-2 ring-indigo-500/40"
+                  />
+                  <div className="text-left leading-tight">
+                    <div className="text-xs font-semibold text-slate-200 truncate max-w-[120px]">
+                      {user.name}
+                    </div>
+                    <span
+                      className={`inline-block px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase rounded-md border ${getRoleBadgeClass(
+                        user.role
+                      )}`}
+                    >
+                      {user.role}
+                    </span>
+                  </div>
+                </button>
+
+                {/* Dropdown menu */}
+                {userDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 glass-panel rounded-2xl shadow-2xl border border-slate-700/80 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="px-4 py-2.5 border-b border-slate-800">
+                      <p className="text-xs text-slate-400">Signed in as</p>
+                      <p className="text-sm font-semibold text-slate-200 truncate">{user.email}</p>
+                    </div>
+
+                    <Link
+                      to="/profile"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center space-x-2.5 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/70 hover:text-white transition-colors"
+                    >
+                      <UserIcon className="w-4 h-4 text-indigo-400" />
+                      <span>My Profile</span>
+                    </Link>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center space-x-2.5 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link
+                  to="/login"
+                  className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-4.5 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-md shadow-indigo-500/20 transition-all hover:scale-105 active:scale-95"
+                >
+                  Get Started
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile hamburger menu button */}
+          <div className="flex md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden glass-panel border-b border-slate-800 px-4 pt-2 pb-6 space-y-3">
+          <Link
+            to="/"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+          >
+            Home
+          </Link>
+
+          {isAuthenticated ? (
+            <>
+              <Link
+                to="/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+              >
+                Profile Dashboard
+              </Link>
+              <div className="pt-4 border-t border-slate-800 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={user.profileImage}
+                    alt={user.name}
+                    className="w-9 h-9 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="text-sm font-semibold text-white">{user.name}</p>
+                    <p className="text-xs text-slate-400">{user.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="p-2 text-red-400 hover:bg-red-500/10 rounded-xl"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="pt-4 border-t border-slate-800 space-y-2">
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full text-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-200 border border-slate-700 bg-slate-900/50"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full text-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500"
+              >
+                Get Started
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
+    </header>
+  );
+};
+
+export default Navbar;
