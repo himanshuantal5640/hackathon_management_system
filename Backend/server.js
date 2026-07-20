@@ -8,11 +8,13 @@ const morgan = require('morgan');
 // Load environment variables
 dotenv.config();
 
+const path = require('path');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const hackathonRoutes = require('./routes/hackathonRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 const teamRoutes = require('./routes/teamRoutes');
+const submissionRoutes = require('./routes/submissionRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 // Initialize Express App
@@ -21,8 +23,11 @@ const app = express();
 // Connect to MongoDB Database
 connectDB();
 
+// Serve static uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Essential Middleware
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(
   cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
@@ -53,6 +58,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/hackathons', hackathonRoutes);
 app.use('/api/registrations', registrationRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/submissions', submissionRoutes);
+
 
 
 

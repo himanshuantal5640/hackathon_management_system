@@ -28,6 +28,13 @@ import JoinTeam from './pages/JoinTeam';
 import OrganizerRegistrations from './pages/OrganizerRegistrations';
 import OrganizerTeams from './pages/OrganizerTeams';
 
+// Phase 4 Project Submission Pages
+import CreateSubmission from './pages/CreateSubmission';
+import EditSubmission from './pages/EditSubmission';
+import MySubmission from './pages/MySubmission';
+import SubmissionDetails from './pages/SubmissionDetails';
+import OrganizerSubmissions from './pages/OrganizerSubmissions';
+
 // Route Guards
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleBasedRoute from './components/RoleBasedRoute';
@@ -105,6 +112,40 @@ function App() {
               }
             />
 
+            {/* Phase 4 Participant Submissions */}
+            <Route
+              path="participant/create-submission"
+              element={
+                <RoleBasedRoute allowedRoles={['participant', 'admin']}>
+                  <CreateSubmission />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="participant/submission/edit/:id"
+              element={
+                <RoleBasedRoute allowedRoles={['participant', 'admin']}>
+                  <EditSubmission />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="participant/my-submission"
+              element={
+                <RoleBasedRoute allowedRoles={['participant', 'admin']}>
+                  <MySubmission />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="participant/submission/:id"
+              element={
+                <ProtectedRoute>
+                  <SubmissionDetails />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Organizer Role Protected Routes */}
             <Route
               path="organizer/dashboard"
@@ -167,6 +208,32 @@ function App() {
               element={
                 <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
                   <OrganizerTeams />
+                </RoleBasedRoute>
+              }
+            />
+
+            {/* Phase 4 Organizer Submissions */}
+            <Route
+              path="organizer/submissions"
+              element={
+                <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
+                  <OrganizerSubmissions />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="organizer/submissions/:id"
+              element={
+                <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
+                  <SubmissionDetails />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="organizer/submissions/hackathon/:hackathonId"
+              element={
+                <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
+                  <OrganizerSubmissions />
                 </RoleBasedRoute>
               }
             />

@@ -120,6 +120,18 @@ const Navbar = () => {
                   <Users className="w-3.5 h-3.5 text-purple-400" />
                   <span>My Team</span>
                 </Link>
+
+                <Link
+                  to="/participant/my-submission"
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/participant/my-submission')
+                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>My Submission</span>
+                </Link>
               </>
             )}
 
@@ -135,7 +147,7 @@ const Navbar = () => {
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Organizer Console</span>
+                  <span>Console</span>
                 </Link>
 
                 <Link
@@ -149,8 +161,21 @@ const Navbar = () => {
                   <UserCheck className="w-3.5 h-3.5 text-purple-400" />
                   <span>Registrations</span>
                 </Link>
+
+                <Link
+                  to="/organizer/submissions"
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/organizer/submissions')
+                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <FolderKanban className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Submissions</span>
+                </Link>
               </>
             )}
+
           </nav>
 
           {/* User Profile / Action Buttons */}
