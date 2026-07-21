@@ -18,6 +18,16 @@ body {
     radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
     radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.12) 0px, transparent 50%);
   background-attachment: fixed;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+body.light {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
 }
 
 #root {
@@ -25,9 +35,17 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
-/* Glassmorphic custom utilities */
+/* Responsive Table Wrapper */
+.responsive-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Glassmorphic custom utilities for Dark Mode */
 .glass-panel {
   background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(16px);
@@ -62,6 +80,53 @@ body {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
 }
 
+/* Glassmorphic overrides for Light Mode */
+body.light .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+body.light .glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+}
+
+body.light .glass-card:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.2);
+}
+
+body.light .glass-input {
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(203, 213, 225, 1);
+  color: #0f172a;
+}
+
+body.light .text-white {
+  color: #0f172a !important;
+}
+
+body.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+body.light .text-slate-400 {
+  color: #475569 !important;
+}
+
+body.light .bg-slate-900 {
+  background-color: #e2e8f0 !important;
+}
+
+body.light .bg-slate-950 {
+  background-color: #f1f5f9 !important;
+}
+
+body.light .border-slate-800 {
+  border-color: #cbd5e1 !important;
+}
+
 /* Custom animated gradient text */
 .gradient-text {
   background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #f472b6 100%);
@@ -72,6 +137,7 @@ body {
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { hackathonService } from '../services/hackathonService';
 import toast from 'react-hot-toast';
+import { useAuth } from '../hooks/useAuth';
 import StatusBadge from '../components/StatusBadge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { 
@@ -181,13 +182,22 @@ const HackathonDetails = () => {
               </div>
             </div>
 
-            <Link
-              to={`/participant/register/${id}`}
-              className="px-6 py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-lg shadow-indigo-500/25 transition-all flex items-center justify-center space-x-2"
-            >
-              <CheckCircle className="w-5 h-5" />
-              <span>Register Now</span>
-            </Link>
+            {user?.role === 'organizer' || user?.role === 'admin' ? (
+              <div className="px-6 py-3.5 rounded-2xl text-xs font-bold text-purple-300 bg-purple-500/15 border border-purple-500/30 flex items-center space-x-2">
+                <Sparkles className="w-4 h-4 text-purple-400" />
+                <span>Organizer Console (View Only)</span>
+              </div>
+            ) : (
+              <Link
+                to={`/participant/register/${id}`}
+                className="px-6 py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-lg shadow-indigo-500/25 transition-all flex items-center justify-center space-x-2"
+              >
+                <CheckCircle className="w-5 h-5" />
+                <span>Register Now</span>
+              </Link>
+            )}
+
+
           </div>
         </div>
       </div>

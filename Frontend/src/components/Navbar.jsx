@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 import { 
   Trophy, 
@@ -19,11 +20,14 @@ import {
   FileCheck,
   UserPlus,
   BarChart3,
-  FileText
+  FileText,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const navigate = useNavigate();
@@ -78,40 +82,34 @@ const Navbar = () => {
 
           {/* Desktop Nav Items */}
           <nav className="hidden md:flex items-center space-x-1">
-            <Link
-              to="/"
-              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                isActive('/')
-                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-              }`}
-            >
-              Home
-            </Link>
+            {isAuthenticated && (
 
-            <Link
-              to="/hackathons"
-              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                isActive('/hackathons')
-                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-              }`}
-            >
-              <Compass className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Explore</span>
-            </Link>
+              <>
+                <Link
+                  to="/hackathons"
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/hackathons')
+                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Compass className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Explore</span>
+                </Link>
 
-            <Link
-              to="/leaderboard"
-              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                isActive('/leaderboard')
-                  ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-              }`}
-            >
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span>Leaderboard</span>
-            </Link>
+                <Link
+                  to="/leaderboard"
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/leaderboard')
+                      ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Leaderboard</span>
+                </Link>
+              </>
+            )}
 
             {/* Participant Links */}
             {isAuthenticated && isParticipant && (
@@ -204,12 +202,25 @@ const Navbar = () => {
             )}
           </nav>
 
-          {/* User Profile / Action Buttons */}
-          <div className="hidden md:flex items-center space-x-3">
+          {/* Right Action Bar: Theme Toggle & User Profile */}
+          <div className="flex items-center space-x-3">
+            {/* Theme Switcher Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl glass-card text-amber-400 hover:text-amber-300 border border-slate-700 transition-all flex items-center justify-center"
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-indigo-400" />
+              )}
+            </button>
+
             {isAuthenticated && isOrganizer && (
               <Link
                 to="/organizer/create"
-                className="px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all flex items-center gap-1"
+                className="hidden md:flex px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all items-center gap-1"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
                 <span>New Event</span>
@@ -227,7 +238,7 @@ const Navbar = () => {
                     alt={user.name}
                     className="w-7 h-7 rounded-full object-cover ring-2 ring-indigo-500/40"
                   />
-                  <div className="text-left leading-tight">
+                  <div className="text-left leading-tight hidden sm:block">
                     <div className="text-xs font-semibold text-slate-200 truncate max-w-[100px]">
                       {user.name}
                     </div>
@@ -317,16 +328,16 @@ const Navbar = () => {
                 </Link>
               </div>
             )}
-          </div>
 
-          {/* Mobile hamburger menu button */}
-          <div className="flex md:hidden">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+            {/* Mobile hamburger menu button */}
+            <div className="flex md:hidden">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -334,27 +345,25 @@ const Navbar = () => {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="md:hidden glass-panel border-b border-slate-800 px-4 pt-2 pb-6 space-y-3">
-          <Link
-            to="/"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
-          >
-            Home
-          </Link>
-          <Link
-            to="/hackathons"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
-          >
-            Explore Hackathons
-          </Link>
-          <Link
-            to="/leaderboard"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
-          >
-            Leaderboard
-          </Link>
+          {isAuthenticated && (
+
+            <>
+              <Link
+                to="/hackathons"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+              >
+                Explore Hackathons
+              </Link>
+              <Link
+                to="/leaderboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
+              >
+                Leaderboard
+              </Link>
+            </>
+          )}
 
           {isAuthenticated ? (
             <>
