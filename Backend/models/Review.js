@@ -101,7 +101,7 @@ const reviewSchema = new mongoose.Schema(
 reviewSchema.index({ submission: 1, judge: 1 }, { unique: true });
 
 // Pre-save hook to calculate totalScore out of 70
-reviewSchema.pre('save', function (next) {
+reviewSchema.pre('save', function () {
   this.totalScore =
     (this.innovation || 0) +
     (this.technicalComplexity || 0) +
@@ -114,9 +114,8 @@ reviewSchema.pre('save', function (next) {
   if (this.status === 'Completed' && !this.submittedAt) {
     this.submittedAt = new Date();
   }
-
-  next();
 });
+
 
 const Review = mongoose.model('Review', reviewSchema);
 

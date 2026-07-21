@@ -13,7 +13,8 @@ import {
   Image as ImageIcon,
   Lock,
   Sparkles,
-  Award
+  Award,
+  Upload
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -21,11 +22,13 @@ const Profile = () => {
   const { user, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [previewImage, setPreviewImage] = useState(user?.profileImage || '');
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -44,8 +47,29 @@ const Profile = () => {
         profileImage: user.profileImage,
         password: '',
       });
+      setPreviewImage(user.profileImage);
     }
   }, [user, reset]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file (JPG, PNG, WEBP)');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image file size must be less than 5MB');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        setValue('profileImage', reader.result, { shouldDirty: true });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const onUpdateSubmit = async (data) => {
     setIsSaving(true);
@@ -53,7 +77,7 @@ const Profile = () => {
       const payload = {
         name: data.name,
         email: data.email,
-        profileImage: data.profileImage,
+        profileImage: previewImage || data.profileImage,
       };
       if (data.password && data.password.trim().length > 0) {
         payload.password = data.password;
@@ -217,17 +241,33 @@ const Profile = () => {
                 {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>}
               </div>
 
-              {/* Profile Image URL */}
+              {/* Profile Image File Upload Selector */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                  Profile Image URL
+                  Select Profile Photo to Upload
                 </label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  {...register('profileImage')}
-                  className="w-full px-4 py-3 rounded-xl glass-input text-sm text-white focus:outline-none"
-                />
+                <div className="flex items-center space-x-4 p-4 rounded-2xl glass-card border border-slate-800">
+                  <img
+                    src={previewImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
+                    alt="Profile Preview"
+                    className="w-16 h-16 rounded-2xl object-cover ring-2 ring-indigo-500/40"
+                  />
+                  <div className="space-y-1.5 flex-1">
+                    <label className="inline-flex items-center px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 cursor-pointer shadow-md shadow-indigo-500/20 transition-all gap-2">
+                      <Upload className="w-4 h-4" />
+                      <span>Choose Image File</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </label>
+                    <p className="text-[11px] text-slate-400">
+                      Upload JPG, PNG, or WEBP photo from your computer (Max 5MB)
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* New Password (Optional) */}

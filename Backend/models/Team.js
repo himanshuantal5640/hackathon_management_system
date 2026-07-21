@@ -55,12 +55,12 @@ const generateInviteCode = () => {
 };
 
 // Pre-validate hook to assign inviteCode if not set
-teamSchema.pre('validate', function (next) {
+teamSchema.pre('validate', function () {
   if (!this.inviteCode) {
     this.inviteCode = generateInviteCode();
   }
-  next();
 });
+
 
 const Team = mongoose.model('Team', teamSchema);
 
