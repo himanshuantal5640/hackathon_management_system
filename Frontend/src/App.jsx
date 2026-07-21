@@ -44,6 +44,16 @@ import CompletedReviews from './pages/CompletedReviews';
 import AssignJudges from './pages/AssignJudges';
 import ReviewManagement from './pages/ReviewManagement';
 
+// Phase 6 Leaderboard, Analytics & Results Pages
+import Leaderboard from './pages/Leaderboard';
+import WinnerAnnouncement from './pages/WinnerAnnouncement';
+import PublicResults from './pages/PublicResults';
+import AdminAnalytics from './pages/AdminAnalytics';
+import OrganizerAnalytics from './pages/OrganizerAnalytics';
+import JudgeAnalytics from './pages/JudgeAnalytics';
+import ParticipantAnalytics from './pages/ParticipantAnalytics';
+import Reports from './pages/Reports';
+
 // Route Guards
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleBasedRoute from './components/RoleBasedRoute';
@@ -61,12 +71,26 @@ function App() {
             <Route path="hackathons" element={<HackathonListing />} />
             <Route path="hackathons/:id" element={<HackathonDetails />} />
 
-            {/* Authenticated Profile */}
+            {/* Phase 6 Public Leaderboard & Results Showcase */}
+            <Route path="leaderboard" element={<Leaderboard />} />
+            <Route path="leaderboard/:hackathonId" element={<Leaderboard />} />
+            <Route path="winner-announcement/:hackathonId" element={<WinnerAnnouncement />} />
+            <Route path="results/:hackathonId" element={<PublicResults />} />
+
+            {/* Authenticated Profile & Reports */}
             <Route
               path="profile"
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
                 </ProtectedRoute>
               }
             />
@@ -77,6 +101,14 @@ function App() {
               element={
                 <RoleBasedRoute allowedRoles={['participant', 'admin']}>
                   <ParticipantDashboard />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="participant/analytics"
+              element={
+                <RoleBasedRoute allowedRoles={['participant', 'admin']}>
+                  <ParticipantAnalytics />
                 </RoleBasedRoute>
               }
             />
@@ -120,8 +152,6 @@ function App() {
                 </RoleBasedRoute>
               }
             />
-
-            {/* Phase 4 Participant Submissions */}
             <Route
               path="participant/create-submission"
               element={
@@ -155,12 +185,20 @@ function App() {
               }
             />
 
-            {/* Phase 5 Judge Role Routes */}
+            {/* Judge Role Routes */}
             <Route
               path="judge/dashboard"
               element={
                 <RoleBasedRoute allowedRoles={['judge', 'admin']}>
                   <JudgeDashboard />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="judge/analytics"
+              element={
+                <RoleBasedRoute allowedRoles={['judge', 'admin']}>
+                  <JudgeAnalytics />
                 </RoleBasedRoute>
               }
             />
@@ -197,12 +235,30 @@ function App() {
               }
             />
 
-            {/* Organizer Role Protected Routes */}
+            {/* Admin Role Routes */}
+            <Route
+              path="admin/analytics"
+              element={
+                <RoleBasedRoute allowedRoles={['admin']}>
+                  <AdminAnalytics />
+                </RoleBasedRoute>
+              }
+            />
+
+            {/* Organizer Role Routes */}
             <Route
               path="organizer/dashboard"
               element={
                 <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
                   <OrganizerDashboard />
+                </RoleBasedRoute>
+              }
+            />
+            <Route
+              path="organizer/analytics"
+              element={
+                <RoleBasedRoute allowedRoles={['organizer', 'admin']}>
+                  <OrganizerAnalytics />
                 </RoleBasedRoute>
               }
             />
@@ -286,8 +342,6 @@ function App() {
                 </RoleBasedRoute>
               }
             />
-
-            {/* Phase 5 Organizer Judge Assignments & Reviews */}
             <Route
               path="organizer/assign-judges"
               element={

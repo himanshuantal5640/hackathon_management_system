@@ -82,8 +82,32 @@ const hackathonSchema = new mongoose.Schema(
     isPublished: {
       type: Boolean,
       default: false
+    },
+    resultPublished: {
+      type: Boolean,
+      default: false
+    },
+    winnerAnnouncement: {
+      type: String,
+      default: ''
+    },
+    firstPrizeTeam: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team'
+    },
+    secondPrizeTeam: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team'
+    },
+    thirdPrizeTeam: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team'
+    },
+    publishedAt: {
+      type: Date
     }
   },
+
   {
     timestamps: true
   }

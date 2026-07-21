@@ -17,7 +17,9 @@ import {
   Award,
   Layers,
   FileCheck,
-  UserPlus
+  UserPlus,
+  BarChart3,
+  FileText
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -56,6 +58,7 @@ const Navbar = () => {
   const isOrganizer = user?.role === 'organizer' || user?.role === 'admin';
   const isParticipant = user?.role === 'participant' || user?.role === 'admin';
   const isJudge = user?.role === 'judge' || user?.role === 'admin';
+  const isAdmin = user?.role === 'admin';
 
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80">
@@ -77,7 +80,7 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center space-x-1">
             <Link
               to="/"
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
                 isActive('/')
                   ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
@@ -88,7 +91,7 @@ const Navbar = () => {
 
             <Link
               to="/hackathons"
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 isActive('/hackathons')
                   ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
@@ -98,12 +101,24 @@ const Navbar = () => {
               <span>Explore</span>
             </Link>
 
+            <Link
+              to="/leaderboard"
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                isActive('/leaderboard')
+                  ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span>Leaderboard</span>
+            </Link>
+
             {/* Participant Links */}
             {isAuthenticated && isParticipant && (
               <>
                 <Link
                   to="/participant/dashboard"
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                     isActive('/participant/dashboard')
                       ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
@@ -115,7 +130,7 @@ const Navbar = () => {
 
                 <Link
                   to="/participant/my-team"
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                     isActive('/participant/my-team')
                       ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
@@ -123,18 +138,6 @@ const Navbar = () => {
                 >
                   <Users className="w-3.5 h-3.5 text-purple-400" />
                   <span>My Team</span>
-                </Link>
-
-                <Link
-                  to="/participant/my-submission"
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/participant/my-submission')
-                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>My Submission</span>
                 </Link>
               </>
             )}
@@ -144,7 +147,7 @@ const Navbar = () => {
               <>
                 <Link
                   to="/judge/dashboard"
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                     isActive('/judge/dashboard')
                       ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
@@ -152,18 +155,6 @@ const Navbar = () => {
                 >
                   <Award className="w-3.5 h-3.5 text-amber-400" />
                   <span>Judge Portal</span>
-                </Link>
-
-                <Link
-                  to="/judge/assigned-projects"
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/judge/assigned-projects')
-                      ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  <Layers className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Assigned</span>
                 </Link>
               </>
             )}
@@ -173,7 +164,7 @@ const Navbar = () => {
               <>
                 <Link
                   to="/organizer/dashboard"
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                     isActive('/organizer/dashboard')
                       ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
@@ -184,29 +175,32 @@ const Navbar = () => {
                 </Link>
 
                 <Link
-                  to="/organizer/assign-judges"
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/organizer/assign-judges')
+                  to="/organizer/analytics"
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/organizer/analytics')
                       ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                   }`}
                 >
-                  <UserPlus className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Assign Judges</span>
-                </Link>
-
-                <Link
-                  to="/organizer/review-management"
-                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/organizer/review-management')
-                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  <Award className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Reviews</span>
+                  <BarChart3 className="w-3.5 h-3.5 text-purple-400" />
+                  <span>Analytics</span>
                 </Link>
               </>
+            )}
+
+            {/* Reports Link */}
+            {isAuthenticated && (
+              <Link
+                to="/reports"
+                className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  isActive('/reports')
+                    ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Reports</span>
+              </Link>
             )}
           </nav>
 
@@ -254,6 +248,17 @@ const Navbar = () => {
                       <p className="text-xs text-slate-400">Signed in as</p>
                       <p className="text-sm font-semibold text-slate-200 truncate">{user.email}</p>
                     </div>
+
+                    {isAdmin && (
+                      <Link
+                        to="/admin/analytics"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center space-x-2.5 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/70 hover:text-white transition-colors"
+                      >
+                        <BarChart3 className="w-4 h-4 text-red-400" />
+                        <span>System Analytics</span>
+                      </Link>
+                    )}
 
                     {isJudge && (
                       <Link
@@ -343,28 +348,23 @@ const Navbar = () => {
           >
             Explore Hackathons
           </Link>
-
-          {isAuthenticated && isJudge && (
-            <>
-              <Link
-                to="/judge/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
-              >
-                Judge Dashboard
-              </Link>
-              <Link
-                to="/judge/assigned-projects"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
-              >
-                Assigned Projects
-              </Link>
-            </>
-          )}
+          <Link
+            to="/leaderboard"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
+          >
+            Leaderboard
+          </Link>
 
           {isAuthenticated ? (
             <>
+              <Link
+                to="/reports"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+              >
+                Reports
+              </Link>
               <Link
                 to="/profile"
                 onClick={() => setMobileMenuOpen(false)}
