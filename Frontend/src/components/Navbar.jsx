@@ -405,6 +405,27 @@ const Navbar = () => {
                 </>
               )}
 
+              {isJudge && (
+                <Link
+                  to="/judge/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
+                >
+                  Judge Portal
+                </Link>
+              )}
+
+              {isOrganizer && (
+                <Link
+                  to="/organizer/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 rounded-xl text-base font-medium text-purple-400 hover:bg-slate-800"
+                >
+                  Organizer Suite
+                </Link>
+              )}
+
+
               <Link
                 to="/reports"
 
