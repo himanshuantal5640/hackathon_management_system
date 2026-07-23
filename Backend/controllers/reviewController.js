@@ -2,9 +2,7 @@ const Review = require('../models/Review');
 const JudgeAssignment = require('../models/JudgeAssignment');
 const Submission = require('../models/Submission');
 
-// @desc    Create a project review evaluation (Draft or Completed)
-// @route   POST /api/reviews
-// @access  Private (Judge / Admin)
+
 const createReview = async (req, res, next) => {
   try {
     const {
@@ -122,9 +120,7 @@ const createReview = async (req, res, next) => {
   }
 };
 
-// @desc    Update a review evaluation draft
-// @route   PUT /api/reviews/:id
-// @access  Private (Judge / Admin)
+
 const updateReview = async (req, res, next) => {
   try {
     const review = await Review.findById(req.params.id);
@@ -200,9 +196,7 @@ const updateReview = async (req, res, next) => {
   }
 };
 
-// @desc    Submit evaluation (Change status to Completed)
-// @route   PATCH /api/reviews/:id/submit
-// @access  Private (Judge / Admin)
+
 const submitReview = async (req, res, next) => {
   try {
     const review = await Review.findById(req.params.id);
@@ -242,9 +236,7 @@ const submitReview = async (req, res, next) => {
   }
 };
 
-// @desc    Lock review (Organizer / Admin)
-// @route   PATCH /api/reviews/:id/lock
-// @access  Private (Organizer / Admin)
+
 const lockReview = async (req, res, next) => {
   try {
     const review = await Review.findById(req.params.id);
@@ -269,9 +261,7 @@ const lockReview = async (req, res, next) => {
   }
 };
 
-// @desc    Get reviews for a single submission
-// @route   GET /api/reviews/submission/:submissionId
-// @access  Private
+
 const getSubmissionReviews = async (req, res, next) => {
   try {
     const reviews = await Review.find({ submission: req.params.submissionId })
@@ -289,9 +279,7 @@ const getSubmissionReviews = async (req, res, next) => {
   }
 };
 
-// @desc    Get reviews evaluated by logged-in judge
-// @route   GET /api/reviews/judge
-// @access  Private (Judge / Admin)
+
 const getJudgeReviews = async (req, res, next) => {
   try {
     const { status, hackathonId } = req.query;
@@ -328,9 +316,7 @@ const getJudgeReviews = async (req, res, next) => {
   }
 };
 
-// @desc    Get review by ID
-// @route   GET /api/reviews/:id
-// @access  Private
+
 const getReviewById = async (req, res, next) => {
   try {
     const review = await Review.findById(req.params.id)

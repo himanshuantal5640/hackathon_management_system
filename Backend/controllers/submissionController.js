@@ -3,7 +3,6 @@ const Team = require('../models/Team');
 const Hackathon = require('../models/Hackathon');
 const Registration = require('../models/Registration');
 
-// Helper URL validator
 const isValidUrl = (string) => {
   try {
     new URL(string);
@@ -13,9 +12,7 @@ const isValidUrl = (string) => {
   }
 };
 
-// @desc    Create a new project submission (Draft)
-// @route   POST /api/submissions
-// @access  Private (Approved Team Leader / Admin)
+
 const createSubmission = async (req, res, next) => {
   try {
     const {
@@ -178,9 +175,6 @@ const createSubmission = async (req, res, next) => {
   }
 };
 
-// @desc    Update submission draft
-// @route   PUT /api/submissions/:id
-// @access  Private (Team Leader / Admin)
 const updateSubmission = async (req, res, next) => {
   try {
     const submission = await Submission.findById(req.params.id).populate('hackathon');
@@ -262,9 +256,6 @@ const updateSubmission = async (req, res, next) => {
   }
 };
 
-// @desc    Delete submission draft
-// @route   DELETE /api/submissions/:id
-// @access  Private (Team Leader / Admin)
 const deleteSubmission = async (req, res, next) => {
   try {
     const submission = await Submission.findById(req.params.id);
@@ -294,9 +285,6 @@ const deleteSubmission = async (req, res, next) => {
   }
 };
 
-// @desc    Get submission by ID
-// @route   GET /api/submissions/:id
-// @access  Private
 const getSubmissionById = async (req, res, next) => {
   try {
     const submission = await Submission.findById(req.params.id)
@@ -320,9 +308,6 @@ const getSubmissionById = async (req, res, next) => {
   }
 };
 
-// @desc    Get submission for logged in user's team
-// @route   GET /api/submissions/my
-// @access  Private (Participant / Admin)
 const getMySubmission = async (req, res, next) => {
   try {
     const { hackathonId } = req.query;
@@ -352,9 +337,6 @@ const getMySubmission = async (req, res, next) => {
   }
 };
 
-// @desc    Get submissions for a hackathon (Organizer / Admin Panel)
-// @route   GET /api/submissions/hackathon/:hackathonId
-// @access  Private (Organizer / Admin)
 const getHackathonSubmissions = async (req, res, next) => {
   try {
     const { status, search } = req.query;
@@ -389,9 +371,6 @@ const getHackathonSubmissions = async (req, res, next) => {
   }
 };
 
-// @desc    Finalize & Submit Project (Change status from Draft to Submitted)
-// @route   PATCH /api/submissions/:id/submit
-// @access  Private (Team Leader / Admin)
 const submitProject = async (req, res, next) => {
   try {
     const submission = await Submission.findById(req.params.id).populate('hackathon');
@@ -432,9 +411,6 @@ const submitProject = async (req, res, next) => {
   }
 };
 
-// @desc    Change submission status (Organizer / Admin)
-// @route   PATCH /api/submissions/:id/status
-// @access  Private (Organizer / Admin)
 const changeSubmissionStatus = async (req, res, next) => {
   try {
     const { status } = req.body;

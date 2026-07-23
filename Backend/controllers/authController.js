@@ -2,9 +2,6 @@ const User = require('../models/User');
 const generateTokenAndSetCookie = require('../utils/generateToken');
 const { validateSignupInput, validateLoginInput, validateEmail } = require('../utils/validators');
 
-// @desc    Register a new user
-// @route   POST /api/auth/signup
-// @access  Public
 const signup = async (req, res, next) => {
   try {
     const { name, email, password, role, profileImage } = req.body;
@@ -50,9 +47,6 @@ const signup = async (req, res, next) => {
   }
 };
 
-// @desc    Authenticate user & get token
-// @route   POST /api/auth/login
-// @access  Public
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -98,9 +92,7 @@ const login = async (req, res, next) => {
   }
 };
 
-// @desc    Get current user profile
-// @route   GET /api/auth/profile
-// @access  Private
+
 const getProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
@@ -120,9 +112,7 @@ const getProfile = async (req, res, next) => {
   }
 };
 
-// @desc    Update current user profile
-// @route   PUT /api/auth/profile
-// @access  Private
+
 const updateProfile = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
@@ -158,14 +148,16 @@ const updateProfile = async (req, res, next) => {
     if (profileImage) user.profileImage = profileImage;
 
     if (password) {
-      if (password.length < 6) {
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,}$/;
+      if (!passwordRegex.test(password)) {
         return res.status(400).json({
           success: false,
-          message: 'Password must be at least 6 characters long'
+          message: 'Password must be at least 6 characters long and contain letters, numbers, and special characters (e.g. Pass123!)'
         });
       }
       user.password = password;
     }
+
 
     const updatedUser = await user.save();
 
@@ -179,9 +171,6 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-// @desc    Log out user / clear cookie
-// @route   POST /api/auth/logout
-// @access  Private
 const logout = async (req, res, next) => {
   try {
     res.cookie('token', 'none', {

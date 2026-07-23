@@ -11,9 +11,11 @@ const validateSignupInput = ({ name, email, password, role }) => {
   if (!email || !validateEmail(email)) {
     errors.push('A valid email address is required');
   }
-  if (!password || password.length < 6) {
-    errors.push('Password must be at least 6 characters long');
+  const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,}$/;
+  if (!password || !passwordRegex.test(password)) {
+    errors.push('Password must be at least 6 characters long and contain letters, numbers, and special characters (e.g. Pass123!)');
   }
+
   const allowedRoles = ['admin', 'organizer', 'participant', 'judge'];
   if (role && !allowedRoles.includes(role)) {
     errors.push(`Role must be one of: ${allowedRoles.join(', ')}`);

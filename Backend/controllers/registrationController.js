@@ -2,9 +2,6 @@ const Registration = require('../models/Registration');
 const Hackathon = require('../models/Hackathon');
 const User = require('../models/User');
 
-// @desc    Register for a hackathon
-// @route   POST /api/registrations
-// @access  Private (Participant / Admin)
 const registerHackathon = async (req, res, next) => {
   try {
     const { hackathonId } = req.body;
@@ -77,9 +74,7 @@ const registerHackathon = async (req, res, next) => {
   }
 };
 
-// @desc    Cancel registration
-// @route   DELETE /api/registrations/:id
-// @access  Private (Participant Owner)
+
 const cancelRegistration = async (req, res, next) => {
   try {
     const registration = await Registration.findById(req.params.id);
@@ -110,9 +105,7 @@ const cancelRegistration = async (req, res, next) => {
   }
 };
 
-// @desc    Get logged in participant's registrations
-// @route   GET /api/registrations/my
-// @access  Private (Participant / Admin)
+
 const getMyRegistrations = async (req, res, next) => {
   try {
     const registrations = await Registration.find({ participant: req.user._id })
@@ -131,9 +124,7 @@ const getMyRegistrations = async (req, res, next) => {
   }
 };
 
-// @desc    Get registration status for a specific hackathon
-// @route   GET /api/registrations/status/:hackathonId
-// @access  Private (Participant / Admin)
+
 const getRegistrationStatus = async (req, res, next) => {
   try {
     const registration = await Registration.findOne({
@@ -153,9 +144,7 @@ const getRegistrationStatus = async (req, res, next) => {
   }
 };
 
-// @desc    Approve registration
-// @route   PATCH /api/registrations/:id/approve
-// @access  Private (Organizer / Admin)
+
 const approveRegistration = async (req, res, next) => {
   try {
     const registration = await Registration.findById(req.params.id).populate('hackathon');
@@ -191,9 +180,7 @@ const approveRegistration = async (req, res, next) => {
   }
 };
 
-// @desc    Reject registration
-// @route   PATCH /api/registrations/:id/reject
-// @access  Private (Organizer / Admin)
+
 const rejectRegistration = async (req, res, next) => {
   try {
     const registration = await Registration.findById(req.params.id).populate('hackathon');
@@ -228,9 +215,7 @@ const rejectRegistration = async (req, res, next) => {
   }
 };
 
-// @desc    Get registrations for a specific hackathon (Organizer / Admin Panel)
-// @route   GET /api/registrations/hackathon/:hackathonId
-// @access  Private (Organizer / Admin)
+
 const getHackathonRegistrations = async (req, res, next) => {
   try {
     const { status, search } = req.query;

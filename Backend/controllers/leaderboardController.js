@@ -5,9 +5,6 @@ const Review = require('../models/Review');
 const Registration = require('../models/Registration');
 const { sendNotification } = require('../utils/emailService');
 
-// @desc    Generate automatic leaderboard for a hackathon
-// @route   POST /api/leaderboard/generate/:hackathonId
-// @access  Private (Organizer / Admin)
 const generateLeaderboard = async (req, res, next) => {
   try {
     const { hackathonId } = req.params;
@@ -123,9 +120,7 @@ const generateLeaderboard = async (req, res, next) => {
   }
 };
 
-// @desc    Declare winners for a hackathon
-// @route   PATCH /api/leaderboard/declare-winners/:hackathonId
-// @access  Private (Organizer / Admin)
+
 const declareWinners = async (req, res, next) => {
   try {
     const { hackathonId } = req.params;
@@ -156,9 +151,6 @@ const declareWinners = async (req, res, next) => {
   }
 };
 
-// @desc    Publish results and announcement to public/participants
-// @route   PATCH /api/leaderboard/publish/:hackathonId
-// @access  Private (Organizer / Admin)
 const publishResults = async (req, res, next) => {
   try {
     const { hackathonId } = req.params;
@@ -197,9 +189,7 @@ const publishResults = async (req, res, next) => {
   }
 };
 
-// @desc    Hide results from public view
-// @route   PATCH /api/leaderboard/hide/:hackathonId
-// @access  Private (Organizer / Admin)
+
 const hideResults = async (req, res, next) => {
   try {
     const { hackathonId } = req.params;
@@ -225,9 +215,7 @@ const hideResults = async (req, res, next) => {
   }
 };
 
-// @desc    Get leaderboard for a hackathon
-// @route   GET /api/leaderboard/:hackathonId
-// @access  Public (When published) / Private (Organizer/Admin/Judge)
+
 const getLeaderboard = async (req, res, next) => {
   try {
     const { hackathonId } = req.params;

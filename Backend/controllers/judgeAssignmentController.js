@@ -2,9 +2,6 @@ const JudgeAssignment = require('../models/JudgeAssignment');
 const Submission = require('../models/Submission');
 const User = require('../models/User');
 
-// @desc    Assign a judge to a project submission
-// @route   POST /api/reviews/assign
-// @access  Private (Organizer / Admin)
 const assignJudge = async (req, res, next) => {
   try {
     const { submissionId, judgeId, hackathonId } = req.body;
@@ -71,9 +68,6 @@ const assignJudge = async (req, res, next) => {
   }
 };
 
-// @desc    Get assignments for logged-in judge
-// @route   GET /api/reviews/assignments
-// @access  Private (Judge / Admin)
 const getJudgeAssignments = async (req, res, next) => {
   try {
     const { hackathonId } = req.query;
@@ -108,9 +102,6 @@ const getJudgeAssignments = async (req, res, next) => {
   }
 };
 
-// @desc    Get list of all judges in the system
-// @route   GET /api/reviews/judges
-// @access  Private (Organizer / Admin)
 const getAvailableJudges = async (req, res, next) => {
   try {
     const judges = await User.find({ role: { $in: ['judge', 'admin'] } }).select(

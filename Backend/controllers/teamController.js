@@ -3,9 +3,6 @@ const Hackathon = require('../models/Hackathon');
 const Registration = require('../models/Registration');
 const User = require('../models/User');
 
-// @desc    Create a new team for a hackathon
-// @route   POST /api/teams
-// @access  Private (Participant / Admin)
 const createTeam = async (req, res, next) => {
   try {
     const { teamName, hackathonId, maxMembers } = req.body;
@@ -78,9 +75,6 @@ const createTeam = async (req, res, next) => {
   }
 };
 
-// @desc    Update team name
-// @route   PUT /api/teams/:id
-// @access  Private (Team Leader / Admin)
 const updateTeam = async (req, res, next) => {
   try {
     const { teamName } = req.body;
@@ -113,9 +107,7 @@ const updateTeam = async (req, res, next) => {
   }
 };
 
-// @desc    Disband / Delete team
-// @route   DELETE /api/teams/:id
-// @access  Private (Team Leader / Admin)
+
 const deleteTeam = async (req, res, next) => {
   try {
     const team = await Team.findById(req.params.id);
@@ -152,9 +144,6 @@ const deleteTeam = async (req, res, next) => {
   }
 };
 
-// @desc    Join team via invite code
-// @route   POST /api/teams/join
-// @access  Private (Participant / Admin)
 const joinTeam = async (req, res, next) => {
   try {
     const { inviteCode } = req.body;
@@ -233,9 +222,7 @@ const joinTeam = async (req, res, next) => {
   }
 };
 
-// @desc    Leave team
-// @route   PATCH /api/teams/:id/leave
-// @access  Private (Participant Member)
+
 const leaveTeam = async (req, res, next) => {
   try {
     const team = await Team.findById(req.params.id);
@@ -286,9 +273,7 @@ const leaveTeam = async (req, res, next) => {
   }
 };
 
-// @desc    Remove member from team (Leader only)
-// @route   PATCH /api/teams/:id/remove-member
-// @access  Private (Team Leader / Admin)
+
 const removeMember = async (req, res, next) => {
   try {
     const { memberId } = req.body;
@@ -334,9 +319,7 @@ const removeMember = async (req, res, next) => {
   }
 };
 
-// @desc    Transfer team leadership
-// @route   PATCH /api/teams/:id/transfer-leader
-// @access  Private (Team Leader / Admin)
+
 const transferLeadership = async (req, res, next) => {
   try {
     const { newLeaderId } = req.body;
@@ -380,9 +363,6 @@ const transferLeadership = async (req, res, next) => {
   }
 };
 
-// @desc    Get current user's team(s)
-// @route   GET /api/teams/my
-// @access  Private (Participant / Admin)
 const getMyTeam = async (req, res, next) => {
   try {
     const { hackathonId } = req.query;
@@ -411,9 +391,7 @@ const getMyTeam = async (req, res, next) => {
   }
 };
 
-// @desc    Get all teams for a hackathon (Organizer / Admin view)
-// @route   GET /api/teams/hackathon/:hackathonId
-// @access  Private (Organizer / Admin)
+
 const getHackathonTeams = async (req, res, next) => {
   try {
     const teams = await Team.find({
@@ -434,9 +412,6 @@ const getHackathonTeams = async (req, res, next) => {
   }
 };
 
-// @desc    Get team preview by invite code
-// @route   GET /api/teams/invite/:inviteCode
-// @access  Private / Public
 const getTeamByInviteCode = async (req, res, next) => {
   try {
     const team = await Team.findOne({

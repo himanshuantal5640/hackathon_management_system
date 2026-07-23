@@ -54,9 +54,6 @@ const getRealtimeLeaderboard = async (hackathonId) => {
   });
 };
 
-// @desc    Export Leaderboard as CSV File
-// @route   GET /api/export/leaderboard/csv/:hackathonId
-// @access  Public (When published) / Private (Organizer/Admin)
 const exportLeaderboardCSV = async (req, res, next) => {
   try {
     const { hackathonId } = req.params;
@@ -108,9 +105,7 @@ const exportLeaderboardCSV = async (req, res, next) => {
   }
 };
 
-// @desc    Export Leaderboard Printable Report HTML / PDF view
-// @route   GET /api/export/leaderboard/pdf/:hackathonId
-// @access  Public (When published) / Private (Organizer/Admin)
+
 const exportLeaderboardPDF = async (req, res, next) => {
   try {
     const { hackathonId } = req.params;

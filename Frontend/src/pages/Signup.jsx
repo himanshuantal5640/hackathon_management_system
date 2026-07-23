@@ -193,6 +193,10 @@ const Signup = () => {
                       value: 6,
                       message: 'Password must be at least 6 characters',
                     },
+                    pattern: {
+                      value: /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,}$/,
+                      message: 'Must include letters, numbers, and special characters (e.g. Pass123!)',
+                    },
                   })}
                   className={`w-full pl-11 pr-10 py-3 rounded-xl glass-input text-sm text-white focus:outline-none ${
                     errors.password ? 'border-red-500 focus:border-red-500' : ''
@@ -206,9 +210,12 @@ const Signup = () => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {errors.password && (
+              {errors.password ? (
                 <p className="mt-1.5 text-xs text-red-400 font-medium">{errors.password.message}</p>
+              ) : (
+                <p className="mt-1 text-[10px] text-slate-400 font-normal">Requires letters, numbers & special chars (e.g. Pass123!)</p>
               )}
+
             </div>
 
             {/* Confirm Password */}

@@ -279,11 +279,20 @@ const Profile = () => {
                   type="password"
                   placeholder="••••••••"
                   {...register('password', {
-                    minLength: { value: 6, message: 'Password must be at least 6 characters' }
+
+                    validate: (val) => {
+                      if (!val || val.trim().length === 0) return true;
+                      const passRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,}$/;
+                      return (
+                        passRegex.test(val) ||
+                        'New password must contain letters, numbers & special chars (e.g. Pass123!)'
+                      );
+                    },
                   })}
                   className="w-full px-4 py-3 rounded-xl glass-input text-sm text-white focus:outline-none"
                 />
                 {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password.message}</p>}
+
               </div>
 
               <div className="pt-4 flex items-center space-x-4">

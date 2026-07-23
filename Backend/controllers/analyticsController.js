@@ -7,9 +7,6 @@ const Review = require('../models/Review');
 const JudgeAssignment = require('../models/JudgeAssignment');
 const Leaderboard = require('../models/Leaderboard');
 
-// @desc    Get Admin System Analytics
-// @route   GET /api/analytics/admin
-// @access  Private (Admin Only)
 const getAdminAnalytics = async (req, res, next) => {
   try {
     const [
@@ -80,9 +77,6 @@ const getAdminAnalytics = async (req, res, next) => {
   }
 };
 
-// @desc    Get Organizer Analytics
-// @route   GET /api/analytics/organizer
-// @access  Private (Organizer / Admin)
 const getOrganizerAnalytics = async (req, res, next) => {
   try {
     const hackathons = await Hackathon.find({ createdBy: req.user._id });
@@ -152,9 +146,6 @@ const getOrganizerAnalytics = async (req, res, next) => {
   }
 };
 
-// @desc    Get Judge Analytics
-// @route   GET /api/analytics/judge
-// @access  Private (Judge / Admin)
 const getJudgeAnalytics = async (req, res, next) => {
   try {
     const [assignedCount, reviews] = await Promise.all([
@@ -199,9 +190,6 @@ const getJudgeAnalytics = async (req, res, next) => {
   }
 };
 
-// @desc    Get Participant Analytics
-// @route   GET /api/analytics/participant
-// @access  Private (Participant / Admin)
 const getParticipantAnalytics = async (req, res, next) => {
   try {
     const [registrations, teams] = await Promise.all([

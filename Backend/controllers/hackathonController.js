@@ -32,9 +32,6 @@ const validateHackathonDates = (startDate, endDate, registrationDeadline, submis
   return errors;
 };
 
-// @desc    Create a new hackathon
-// @route   POST /api/hackathons
-// @access  Private (Organizer / Admin)
 const createHackathon = async (req, res, next) => {
   try {
     const {
@@ -116,9 +113,7 @@ const createHackathon = async (req, res, next) => {
   }
 };
 
-// @desc    Get all hackathons (Public with Search, Filter & Sort)
-// @route   GET /api/hackathons
-// @access  Public
+
 const getAllHackathons = async (req, res, next) => {
   try {
     const { search, mode, status, sort } = req.query;
@@ -174,9 +169,7 @@ const getAllHackathons = async (req, res, next) => {
   }
 };
 
-// @desc    Get single hackathon by ID
-// @route   GET /api/hackathons/:id
-// @access  Public / Private check
+
 const getHackathonById = async (req, res, next) => {
   try {
     const hackathon = await Hackathon.findById(req.params.id)
@@ -211,9 +204,6 @@ const getHackathonById = async (req, res, next) => {
   }
 };
 
-// @desc    Update hackathon
-// @route   PUT /api/hackathons/:id
-// @access  Private (Organizer Owner / Admin)
 const updateHackathon = async (req, res, next) => {
   try {
     let hackathon = req.hackathon; // attached by checkHackathonOwnership middleware
@@ -292,9 +282,6 @@ const updateHackathon = async (req, res, next) => {
   }
 };
 
-// @desc    Delete hackathon
-// @route   DELETE /api/hackathons/:id
-// @access  Private (Organizer Owner / Admin)
 const deleteHackathon = async (req, res, next) => {
   try {
     const hackathon = req.hackathon;
@@ -309,9 +296,6 @@ const deleteHackathon = async (req, res, next) => {
   }
 };
 
-// @desc    Get hackathons created by logged in organizer
-// @route   GET /api/hackathons/my
-// @access  Private (Organizer / Admin)
 const getMyHackathons = async (req, res, next) => {
   try {
     const hackathons = await Hackathon.find({ createdBy: req.user._id })
@@ -327,9 +311,6 @@ const getMyHackathons = async (req, res, next) => {
   }
 };
 
-// @desc    Publish / Unpublish hackathon
-// @route   PATCH /api/hackathons/:id/publish
-// @access  Private (Organizer Owner / Admin)
 const publishHackathon = async (req, res, next) => {
   try {
     const hackathon = req.hackathon;
@@ -346,9 +327,6 @@ const publishHackathon = async (req, res, next) => {
   }
 };
 
-// @desc    Open Registration
-// @route   PATCH /api/hackathons/:id/open-registration
-// @access  Private (Organizer Owner / Admin)
 const openRegistration = async (req, res, next) => {
   try {
     const hackathon = req.hackathon;
@@ -365,9 +343,7 @@ const openRegistration = async (req, res, next) => {
   }
 };
 
-// @desc    Close Registration
-// @route   PATCH /api/hackathons/:id/close-registration
-// @access  Private (Organizer Owner / Admin)
+
 const closeRegistration = async (req, res, next) => {
   try {
     const hackathon = req.hackathon;
