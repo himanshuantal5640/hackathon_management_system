@@ -24,15 +24,34 @@ const Login = () => {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      await login(data.email, data.password);
+      const response = await login(data.email, data.password);
+      const loggedUser = response?.user;
       toast.success('Welcome back! Logged in successfully.');
-      navigate(from, { replace: true });
+
+      let targetPath = from;
+      const restrictedPrefixes = ['/participant', '/organizer', '/admin', '/judge'];
+      const isRestrictedPath = restrictedPrefixes.some((p) => from.startsWith(p));
+
+      if (from === '/profile' || isRestrictedPath) {
+        if (loggedUser?.role === 'admin') {
+          targetPath = '/admin/analytics';
+        } else if (loggedUser?.role === 'organizer') {
+          targetPath = '/organizer/dashboard';
+        } else if (loggedUser?.role === 'judge') {
+          targetPath = '/judge/dashboard';
+        } else {
+          targetPath = '/participant/dashboard';
+        }
+      }
+
+      navigate(targetPath, { replace: true });
     } catch (err) {
       toast.error(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

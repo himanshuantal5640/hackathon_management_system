@@ -10,6 +10,8 @@ import FilterDropdown from '../components/FilterDropdown';
 import DeleteModal from '../components/DeleteModal';
 import EmptyState from '../components/EmptyState';
 
+import { socket } from '../services/socket';
+
 const MyHackathons = () => {
   const [hackathons, setHackathons] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -70,6 +72,10 @@ const MyHackathons = () => {
     try {
       await hackathonService.deleteHackathon(deleteModal.id);
       toast.success('Hackathon deleted successfully');
+      socket.emit('broadcastSystemNotification', {
+        type: 'HACKATHON DELETED',
+        message: `The hackathon event "${deleteModal.title}" has been deleted.`
+      });
       setHackathons((prev) => prev.filter((h) => h._id !== deleteModal.id));
       setDeleteModal({ isOpen: false, id: null, title: '' });
     } catch (err) {
@@ -78,6 +84,7 @@ const MyHackathons = () => {
       setIsDeleting(false);
     }
   };
+
 
   const handlePublish = async (id) => {
     try {

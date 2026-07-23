@@ -20,6 +20,8 @@ import {
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
 import DeleteModal from '../components/DeleteModal';
+import { socket } from '../services/socket';
+
 
 const OrganizerDashboard = () => {
   const [hackathons, setHackathons] = useState([]);
@@ -55,6 +57,10 @@ const OrganizerDashboard = () => {
     try {
       await hackathonService.deleteHackathon(deleteModalState.id);
       toast.success('Hackathon deleted successfully');
+      socket.emit('broadcastSystemNotification', {
+        type: 'HACKATHON DELETED',
+        message: `The hackathon event "${deleteModalState.title}" has been deleted.`
+      });
       setHackathons((prev) => prev.filter((h) => h._id !== deleteModalState.id));
       setDeleteModalState({ isOpen: false, id: null, title: '' });
     } catch (err) {
@@ -63,6 +69,7 @@ const OrganizerDashboard = () => {
       setIsDeleting(false);
     }
   };
+
 
   const handleToggleRegistration = async (id, currentStatus) => {
     try {

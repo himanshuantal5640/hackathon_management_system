@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { teamService } from '../services/teamService';
 import { useAuth } from '../hooks/useAuth';
+import { socket } from '../services/socket';
 import toast from 'react-hot-toast';
 import { 
   Users, 
@@ -12,7 +13,8 @@ import {
   Sparkles, 
   AlertTriangle, 
   MessageSquare, 
-  Send 
+  Send,
+  FolderKanban
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import InviteCodeBox from '../components/InviteCodeBox';
@@ -54,11 +56,14 @@ const MyTeam = () => {
     fetchMyTeams();
   }, []);
 
+  // Setup Socket connection & room joining for real-time team chat
   useEffect(() => {
     if (teams.length > 0) {
       const messages = {};
       const inputs = {};
+      
       teams.forEach(t => {
+        // Load stored message history
         const stored = localStorage.getItem(`team_chat_${t._id}`);
         messages[t._id] = stored ? JSON.parse(stored) : [
           {
@@ -69,10 +74,44 @@ const MyTeam = () => {
         ];
         // pre-populate input with invite link
         inputs[t._id] = `Hey! Join our hackathon team using this link: ${window.location.origin}/participant/join-team/${t.inviteCode}`;
+        
+        // Join live socket room for this team
+        socket.emit('joinTeamRoom', t._id);
       });
+
       setChatMessages(messages);
       setChatInputs(inputs);
     }
+
+    // Listen for live incoming messages via socket
+    socket.on('receiveTeamMessage', (data) => {
+      setChatMessages((prev) => {
+        const teamMsgs = prev[data.teamId] || [];
+        // Check for duplicates
+        const alreadyExists = teamMsgs.some(
+          (m) => m.senderId === data.senderId && m.text === data.text
+        );
+        if (alreadyExists) return prev;
+
+        const updated = [
+          ...teamMsgs,
+          {
+            senderName: data.senderName,
+            senderId: data.senderId,
+            text: data.text,
+          },
+        ];
+        localStorage.setItem(`team_chat_${data.teamId}`, JSON.stringify(updated));
+        return {
+          ...prev,
+          [data.teamId]: updated,
+        };
+      });
+    });
+
+    return () => {
+      socket.off('receiveTeamMessage');
+    };
   }, [teams]);
 
   const handleSendMessage = (e, teamId) => {
@@ -80,19 +119,27 @@ const MyTeam = () => {
     const text = chatInputs[teamId];
     if (!text || text.trim().length === 0) return;
 
-    const newMsg = {
+    const msgPayload = {
+      teamId,
       senderName: user?.name || 'Participant',
       senderId: user?._id || 'user',
       text: text.trim()
     };
 
-    const updatedMessages = {
-      ...chatMessages,
-      [teamId]: [...(chatMessages[teamId] || []), newMsg]
-    };
+    // Emit live message through socket
+    socket.emit('sendTeamMessage', msgPayload);
 
-    setChatMessages(updatedMessages);
-    localStorage.setItem(`team_chat_${teamId}`, JSON.stringify(updatedMessages[teamId]));
+    // If it's an invite link share, broadcast invite notification system-wide
+    if (text.includes('/join-team/')) {
+      const activeTeam = teams.find((t) => t._id === teamId);
+      socket.emit('sendInviteNotification', {
+        senderName: user?.name || 'Participant',
+        teamName: activeTeam?.teamName || 'Hackathon Team',
+        inviteLink: text.trim().match(/https?:\/\/\S+/)?.[0] || ''
+      });
+    }
+
+    // Clear input
     setChatInputs({ ...chatInputs, [teamId]: '' });
   };
 
@@ -209,6 +256,14 @@ const MyTeam = () => {
               {/* Team Actions */}
               <div className="flex flex-wrap items-center gap-3">
                 <button
+                  onClick={() => navigate('/participant/my-submission')}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 transition-all flex items-center gap-1.5"
+                >
+                  <FolderKanban className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Submit Project</span>
+                </button>
+
+                <button
                   onClick={() => setConfirmLeave({ isOpen: true, teamId: team._id })}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all flex items-center gap-1.5"
                 >
@@ -268,10 +323,10 @@ const MyTeam = () => {
               <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-indigo-400" />
-                  <span>Team Chat & Share Panel</span>
+                  <span>Live Team Chat & invite link share (Socket.io)</span>
                 </h3>
                 <span className="text-[10px] uppercase font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
-                  Direct Link Sharing Active
+                  Active Live Connection
                 </span>
               </div>
 

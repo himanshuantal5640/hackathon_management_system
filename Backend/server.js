@@ -99,14 +99,49 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
+const http = require('http');
+const socketIo = require('socket.io');
+
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+  }
+});
+
+// Socket.io initialization
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+
+  socket.on('joinTeamRoom', (teamId) => {
+    socket.join(teamId);
+    console.log(`Socket ${socket.id} joined room: ${teamId}`);
+  });
+
+  socket.on('sendTeamMessage', (data) => {
+    // Broadcast message to the specific team room
+    io.to(data.teamId).emit('receiveTeamMessage', data);
+  });
+
+  socket.on('broadcastSystemNotification', (data) => {
+    // Broadcast notifications like event created, deleted, or result published
+    socket.broadcast.emit('receiveSystemNotification', data);
+  });
+
+  socket.on('sendInviteNotification', (data) => {
+    // Broadcast team invitation notification to all logged in clients
+    socket.broadcast.emit('receiveInviteNotification', data);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  console.error(`Unhandled Rejection Error: ${err.message}`);
-  server.close(() => process.exit(1));
-});
-
 module.exports = app;
+

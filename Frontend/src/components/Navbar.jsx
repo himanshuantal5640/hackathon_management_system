@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../context/ThemeContext';
+import { socket } from '../services/socket';
 import toast from 'react-hot-toast';
 import { 
   Trophy, 
@@ -22,7 +23,8 @@ import {
   BarChart3,
   FileText,
   Sun,
-  Moon
+  Moon,
+  Bell
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -30,8 +32,73 @@ const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Load and listen for in-app Socket.io notifications
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const stored = localStorage.getItem(`notifications_${user._id}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setNotifications(parsed);
+        setUnreadCount(parsed.filter(n => !n.read).length);
+      }
+
+      // Listen for system notification (event added, deleted, result published)
+      socket.on('receiveSystemNotification', (data) => {
+        const newNotif = {
+          id: Math.random().toString(),
+          type: data.type || 'SYSTEM',
+          message: data.message,
+          timestamp: new Date().toISOString(),
+          read: false
+        };
+        toast(data.message, { icon: '📢', duration: 5000 });
+        setNotifications(prev => {
+          const updated = [newNotif, ...prev];
+          localStorage.setItem(`notifications_${user._id}`, JSON.stringify(updated));
+          return updated;
+        });
+        setUnreadCount(prev => prev + 1);
+      });
+
+      // Listen for invitation notification
+      socket.on('receiveInviteNotification', (data) => {
+        const newNotif = {
+          id: Math.random().toString(),
+          type: 'INVITATION',
+          message: `${data.senderName} has invited you to join their team "${data.teamName}"!`,
+          link: data.inviteLink,
+          timestamp: new Date().toISOString(),
+          read: false
+        };
+        toast(`${data.senderName} shared a team invitation link!`, { icon: '📩', duration: 6000 });
+        setNotifications(prev => {
+          const updated = [newNotif, ...prev];
+          localStorage.setItem(`notifications_${user._id}`, JSON.stringify(updated));
+          return updated;
+        });
+        setUnreadCount(prev => prev + 1);
+      });
+    }
+
+    return () => {
+      socket.off('receiveSystemNotification');
+      socket.off('receiveInviteNotification');
+    };
+  }, [isAuthenticated, user]);
+
+  const clearNotifications = () => {
+    const updated = notifications.map(n => ({ ...n, read: true }));
+    setNotifications(updated);
+    setUnreadCount(0);
+    localStorage.setItem(`notifications_${user._id}`, JSON.stringify(updated));
+  };
 
   const handleLogout = async () => {
     try {
@@ -39,77 +106,73 @@ const Navbar = () => {
       toast.success('Logged out successfully');
       setUserDropdownOpen(false);
       navigate('/login');
-    } catch (error) {
+    } catch (err) {
       toast.error('Logout failed');
-    }
-  };
-
-  const getRoleBadgeClass = (role) => {
-    switch (role) {
-      case 'admin':
-        return 'bg-red-500/15 text-red-400 border-red-500/30';
-      case 'organizer':
-        return 'bg-purple-500/15 text-purple-400 border-purple-500/30';
-      case 'judge':
-        return 'bg-amber-500/15 text-amber-400 border-amber-500/30';
-      default:
-        return 'bg-indigo-500/15 text-indigo-400 border-indigo-500/30';
     }
   };
 
   const isActive = (path) => location.pathname === path;
 
-  const isOrganizer = user?.role === 'organizer' || user?.role === 'admin';
-  const isParticipant = user?.role === 'participant' || user?.role === 'admin';
-  const isJudge = user?.role === 'judge' || user?.role === 'admin';
+  // Role helper checks
   const isAdmin = user?.role === 'admin';
+  const isOrganizer = user?.role === 'organizer';
+  const isJudge = user?.role === 'judge';
+  const isParticipant = user?.role === 'participant';
+
+  const getRoleBadgeClass = (role) => {
+    switch (role) {
+      case 'admin':
+        return 'bg-red-500/10 text-red-400 border-red-500/20';
+      case 'organizer':
+        return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+      case 'judge':
+        return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+      default:
+        return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
+    }
+  };
 
   return (
-    <header className="sticky top-0 z-40 w-full glass-panel border-b border-slate-800/80">
+    <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Brand Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-300">
-              <Trophy className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="text-xl font-black tracking-tight text-white flex items-center gap-1">
-                Hack<span className="gradient-text">Pulse</span>
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo Branding */}
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md shadow-indigo-500/20">
+                <Trophy className="w-5 h-5" />
+              </div>
+              <span className="text-lg font-black text-white tracking-wider uppercase">
+                Hack<span className="text-indigo-400">Pulse</span>
               </span>
-            </div>
-          </Link>
+            </Link>
+          </div>
 
-          {/* Desktop Nav Items */}
-          <nav className="hidden md:flex items-center space-x-1">
-            {isAuthenticated && (
+          {/* Desktop Nav Links */}
+          <nav className="hidden md:flex items-center space-x-1.5">
+            <Link
+              to="/hackathons"
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                isActive('/hackathons')
+                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Explore</span>
+            </Link>
 
-              <>
-                <Link
-                  to="/hackathons"
-                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/hackathons')
-                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  <Compass className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Explore</span>
-                </Link>
-
-                <Link
-                  to="/leaderboard"
-                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/leaderboard')
-                      ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Leaderboard</span>
-                </Link>
-              </>
-            )}
+            <Link
+              to="/leaderboard"
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                isActive('/leaderboard')
+                  ? 'bg-amber-600/20 text-amber-300 border border-amber-500/30'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span>Leaderboard</span>
+            </Link>
 
             {/* Participant Links */}
             {isAuthenticated && isParticipant && (
@@ -181,19 +244,24 @@ const Navbar = () => {
                   }`}
                 >
                   <LayoutDashboard className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Console</span>
+                  <span>Organizer Hub</span>
                 </Link>
+              </>
+            )}
 
+            {/* Admin Links */}
+            {isAuthenticated && isAdmin && (
+              <>
                 <Link
-                  to="/organizer/analytics"
+                  to="/admin/analytics"
                   className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/organizer/analytics')
-                      ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30'
+                    isActive('/admin/analytics')
+                      ? 'bg-red-600/20 text-red-300 border border-red-500/30'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                   }`}
                 >
-                  <BarChart3 className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Analytics</span>
+                  <BarChart3 className="w-3.5 h-3.5 text-red-405" />
+                  <span>Console</span>
                 </Link>
               </>
             )}
@@ -204,7 +272,7 @@ const Navbar = () => {
                 to="/reports"
                 className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                   isActive('/reports')
-                    ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                    ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30'
                     : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                 }`}
               >
@@ -219,7 +287,7 @@ const Navbar = () => {
             {/* Theme Switcher Toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-xl glass-card text-amber-400 hover:text-amber-300 border border-slate-700 transition-all flex items-center justify-center"
+              className="p-2 rounded-xl glass-card text-amber-400 hover:text-amber-300 border border-slate-700 transition-all flex items-center justify-center cursor-pointer"
               title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
             >
               {theme === 'dark' ? (
@@ -229,10 +297,72 @@ const Navbar = () => {
               )}
             </button>
 
+            {/* Real-time Notifications Bell Dropdown */}
+            {isAuthenticated && (
+              <div className="relative">
+                <button
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  className="p-2 rounded-xl glass-card text-slate-300 hover:text-white border border-slate-700 transition-all flex items-center justify-center relative cursor-pointer"
+                  title="Notifications"
+                >
+                  <Bell className="w-4 h-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-600 text-white rounded-full text-[9px] font-black flex items-center justify-center animate-bounce">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {notificationsOpen && (
+                  <div className="absolute right-0 mt-2.5 w-80 glass-panel rounded-2xl shadow-2xl border border-slate-700/80 py-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="px-4 pb-2 border-b border-slate-800 flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-200">Platform Notifications</span>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={clearNotifications}
+                          className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-60 overflow-y-auto divide-y divide-slate-800/60">
+                      {notifications.length === 0 ? (
+                        <div className="px-4 py-8 text-center text-xs text-slate-500 italic">
+                          No notifications yet.
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div key={n.id} className="p-3 hover:bg-slate-900/40 transition-all space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[9px] text-indigo-400 font-bold uppercase tracking-wider">{n.type}</span>
+                              <span className="text-[8px] text-slate-500">{new Date(n.timestamp).toLocaleTimeString()}</span>
+                            </div>
+                            <p className="text-xs text-slate-300 leading-relaxed">{n.message}</p>
+                            {n.link && (
+                              <a
+                                href={n.link}
+                                className="text-[10px] text-amber-300 font-bold hover:underline inline-block mt-0.5"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Join Team Link ➔
+                              </a>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {isAuthenticated && isOrganizer && (
               <Link
                 to="/organizer/create"
-                className="hidden md:flex px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all items-center gap-1"
+                className="hidden md:flex px-3 py-1.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md transition-all items-center gap-1 animate-pulse"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
                 <span>New Event</span>
@@ -243,7 +373,7 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center space-x-2.5 p-1 pr-3 rounded-full glass-card hover:bg-slate-800 transition-all border border-slate-700/60"
+                  className="flex items-center space-x-2.5 p-1 pr-3 rounded-full glass-card hover:bg-slate-800 transition-all border border-slate-700/60 cursor-pointer"
                 >
                   <img
                     src={user.profileImage || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80'}
@@ -300,8 +430,19 @@ const Navbar = () => {
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center space-x-2.5 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/70 hover:text-white transition-colors"
                       >
-                        <FolderKanban className="w-4 h-4 text-purple-400" />
-                        <span>Organizer Console</span>
+                        <LayoutDashboard className="w-4 h-4 text-purple-400" />
+                        <span>Organizer Suite</span>
+                      </Link>
+                    )}
+
+                    {isParticipant && (
+                      <Link
+                        to="/participant/dashboard"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center space-x-2.5 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/70 hover:text-white transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-indigo-400" />
+                        <span>Participant Hub</span>
                       </Link>
                     )}
 
@@ -316,7 +457,7 @@ const Navbar = () => {
 
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center space-x-2.5 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors text-left"
+                      className="w-full text-left flex items-center space-x-2.5 px-4 py-2 text-sm text-rose-400 hover:bg-rose-500/10 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
                       <span>Log Out</span>
@@ -325,57 +466,50 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
                 <Link
                   to="/login"
-                  className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/signup"
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-md shadow-indigo-500/20 transition-all"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-indigo-650 hover:bg-indigo-600 transition-all shadow-md shadow-indigo-500/10"
                 >
-                  Get Started
+                  Register
                 </Link>
               </div>
             )}
 
-            {/* Mobile hamburger menu button */}
-            <div className="flex md:hidden">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl glass-card text-slate-300 hover:text-white border border-slate-700 md:hidden transition-all flex items-center justify-center cursor-pointer"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden glass-panel border-b border-slate-800 px-4 pt-2 pb-6 space-y-3">
-          {isAuthenticated && (
-
-            <>
-              <Link
-                to="/hackathons"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
-              >
-                Explore Hackathons
-              </Link>
-              <Link
-                to="/leaderboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
-              >
-                Leaderboard
-              </Link>
-            </>
-          )}
+        <div className="md:hidden border-t border-slate-850 bg-slate-950 p-4 space-y-3">
+          <Link
+            to="/hackathons"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
+          >
+            Explore Hackathons
+          </Link>
+          <Link
+            to="/leaderboard"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block px-3 py-2 rounded-xl text-base font-medium text-amber-400 hover:bg-slate-800"
+          >
+            Leaderboard
+          </Link>
 
           {isAuthenticated ? (
             <>
@@ -425,10 +559,8 @@ const Navbar = () => {
                 </Link>
               )}
 
-
               <Link
                 to="/reports"
-
                 onClick={() => setMobileMenuOpen(false)}
                 className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
               >
@@ -465,20 +597,20 @@ const Navbar = () => {
               </div>
             </>
           ) : (
-            <div className="pt-4 border-t border-slate-800 space-y-2">
+            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800">
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-200 border border-slate-700 bg-slate-900/50"
+                className="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800"
               >
                 Sign In
               </Link>
               <Link
                 to="/signup"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500"
+                className="w-full py-2.5 rounded-xl text-center text-xs font-semibold text-white bg-indigo-600"
               >
-                Get Started
+                Register
               </Link>
             </div>
           )}

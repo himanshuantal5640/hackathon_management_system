@@ -28,6 +28,8 @@ import {
   CartesianGrid,
 } from 'recharts';
 
+import { socket } from '../services/socket';
+
 const OrganizerAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [myHackathons, setMyHackathons] = useState([]);
@@ -83,8 +85,14 @@ const OrganizerAnalytics = () => {
       const res = await leaderboardService.publishResults(selectedHackathonId);
       if (res.success) {
         toast.success('Results published to public showcase!');
+        const activeHack = myHackathons.find((h) => h._id === selectedHackathonId);
+        socket.emit('broadcastSystemNotification', {
+          type: 'RESULTS PUBLISHED',
+          message: `Official results and standings for "${activeHack?.title || 'Hackathon'}" have been published! Check the leaderboard now.`
+        });
         setPublishModalOpen(false);
       }
+
     } catch (err) {
       toast.error(err.message || 'Failed to publish results');
     } finally {

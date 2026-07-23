@@ -49,28 +49,46 @@ const RegistrationCard = ({ registration, onCancel }) => {
             <strong>Organizer Note:</strong> {remarks}
           </p>
         )}
+
+        {/* Informational Help text for Pending Status */}
+        {status === 'Pending' && (
+          <div className="p-3 rounded-2xl bg-amber-500/5 border border-amber-500/15 text-[10px] text-amber-400 font-medium leading-relaxed">
+            ℹ️ Your entry is awaiting manual review/approval by the event organizer. Once approved, you can create/join teams and submit project drafts.
+          </div>
+        )}
       </div>
 
       {/* Action buttons */}
       <div className="pt-3 border-t border-slate-800/60 flex items-center justify-between gap-3">
         <Link
           to={`/hackathons/${hackathon._id}`}
-          className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+          className="text-xs font-semibold text-slate-400 hover:text-white transition-colors flex items-center gap-1"
         >
           <span>Event Details</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
 
-        {status !== 'Cancelled' && (
-          <button
-            onClick={() => onCancel(_id, hackathon.title)}
-            className="px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 transition-colors flex items-center gap-1"
+        {hackathon.resultPublished ? (
+          <Link
+            to={`/results/${hackathon._id}`}
+            className="px-3.5 py-1.5 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/10"
           >
-            <XCircle className="w-3.5 h-3.5" />
-            <span>Cancel Registration</span>
-          </button>
+            <Trophy className="w-3.5 h-3.5 text-emerald-400" />
+            <span>View Results</span>
+          </Link>
+        ) : (
+          status !== 'Cancelled' && (
+            <button
+              onClick={() => onCancel(_id, hackathon.title)}
+              className="px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 transition-colors flex items-center gap-1"
+            >
+              <XCircle className="w-3.5 h-3.5" />
+              <span>Cancel Registration</span>
+            </button>
+          )
         )}
       </div>
+
     </div>
   );
 };

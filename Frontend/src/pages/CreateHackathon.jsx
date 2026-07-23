@@ -5,6 +5,8 @@ import toast from 'react-hot-toast';
 import { Trophy, ArrowLeft, Sparkles } from 'lucide-react';
 import HackathonForm from '../components/HackathonForm';
 
+import { socket } from '../services/socket';
+
 const CreateHackathon = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -15,8 +17,13 @@ const CreateHackathon = () => {
       const response = await hackathonService.createHackathon(formData);
       if (response.success) {
         toast.success('Hackathon created successfully!');
+        socket.emit('broadcastSystemNotification', {
+          type: 'HACKATHON ADDED',
+          message: `New event added: "${formData.title}"! Browse details in explore events.`
+        });
         navigate('/organizer/my-hackathons');
       }
+
     } catch (err) {
       toast.error(err.message || 'Failed to create hackathon');
     } finally {
