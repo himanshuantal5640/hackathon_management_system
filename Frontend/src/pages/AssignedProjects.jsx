@@ -2,31 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { reviewService } from '../services/reviewService';
 import toast from 'react-hot-toast';
-import { Layers, Sparkles, ArrowRight, ExternalLink, FileText } from 'lucide-react';
+import { Layers, Sparkles, ArrowRight, ExternalLink, FileText, CheckCircle2, Edit3 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
 import GithubIcon from '../components/GithubIcon';
 
-
 const AssignedProjects = () => {
   const [assignments, setAssignments] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAssignments = async () => {
+    const fetchData = async () => {
       try {
-        const response = await reviewService.getJudgeAssignments();
-        if (response.success) {
-          setAssignments(response.assignments || []);
-        }
+        const [assignRes, reviewRes] = await Promise.all([
+          reviewService.getJudgeAssignments(),
+          reviewService.getJudgeReviews(),
+        ]);
+        if (assignRes.success) setAssignments(assignRes.assignments || []);
+        if (reviewRes.success) setReviews(reviewRes.reviews || []);
       } catch (err) {
-        toast.error('Failed to load assigned projects');
+        toast.error('Failed to load assigned projects or evaluation status');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAssignments();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -56,6 +58,12 @@ const AssignedProjects = () => {
           {assignments.map((asgn) => {
             const sub = asgn.submission;
             if (!sub) return null;
+
+            // Check if evaluation/review exists for this submission
+            const existingReview = reviews.find(
+              (r) => r.submission?._id === sub._id || r.submission === sub._id
+            );
+
             return (
               <div key={asgn._id} className="glass-panel p-6 rounded-3xl border border-slate-800 space-y-5 flex flex-col justify-between">
                 <div className="space-y-4">
@@ -81,7 +89,7 @@ const AssignedProjects = () => {
                       <h3 className="text-lg font-bold text-white leading-tight">
                         {sub.projectName}
                       </h3>
-                      <p className="text-xs text-slate-400">Team: {sub.team?.teamName}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">Team: {sub.team?.teamName}</p>
                     </div>
                   </div>
 
@@ -113,13 +121,30 @@ const AssignedProjects = () => {
                 </div>
 
                 <div className="pt-4 border-t border-slate-800/60">
-                  <Link
-                    to={`/judge/review/${sub._id}`}
-                    className="w-full py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center space-x-2"
-                  >
-                    <span>Start Evaluation</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  {existingReview ? (
+                    existingReview.status === 'Completed' || existingReview.status === 'Locked' ? (
+                      <div className="w-full py-3 rounded-xl text-xs font-bold text-emerald-450 bg-emerald-500/10 border border-emerald-500/20 text-center flex items-center justify-center space-x-1.5 cursor-not-allowed">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 animate-pulse" />
+                        <span>Evaluation Done</span>
+                      </div>
+                    ) : (
+                      <Link
+                        to={`/judge/review/${sub._id}`}
+                        className="w-full py-3 rounded-xl text-xs font-bold text-slate-200 bg-amber-600 hover:bg-amber-500 shadow-md transition-all flex items-center justify-center space-x-1.5"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                        <span>Update Evaluation (Draft)</span>
+                      </Link>
+                    )
+                  ) : (
+                    <Link
+                      to={`/judge/review/${sub._id}`}
+                      className="w-full py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:opacity-95 shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center space-x-2"
+                    >
+                      <span>Start Evaluation</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  )}
                 </div>
               </div>
             );
