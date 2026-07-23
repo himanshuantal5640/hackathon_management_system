@@ -12,10 +12,13 @@ import {
   Edit3, 
   Trash2, 
   ArrowRight,
-  Sparkles,
   BarChart3,
-  UserCheck
+  UserCheck,
+  Users,
+  Sparkles
 } from 'lucide-react';
+
+
 
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
@@ -256,12 +259,20 @@ const OrganizerDashboard = () => {
                             )}
                           </button>
                           <Link
+                            to={`/organizer/registrations/${h._id}`}
+                            className="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400"
+                            title="Manage Registrations"
+                          >
+                            <Users className="w-4 h-4" />
+                          </Link>
+                          <Link
                             to={`/organizer/assign-judges/${h._id}`}
                             className="p-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-400"
                             title="Assign Judges"
                           >
                             <UserCheck className="w-4 h-4" />
                           </Link>
+
                           <Link
                             to={`/organizer/edit/${h._id}`}
                             className="p-1.5 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400"

@@ -22,11 +22,46 @@ import MemberCard from '../components/MemberCard';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { useNavigate } from 'react-router-dom';
 
+const SubmissionDeadlineTimer = ({ deadline }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    if (!deadline) return;
+
+    const updateTimer = () => {
+      const diff = new Date(deadline) - new Date();
+      if (diff <= 0) {
+        setTimeLeft('Submission Closed');
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((diff / (1000 * 60)) % 60);
+      const secs = Math.floor((diff / 1000) % 60);
+
+      setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [deadline]);
+
+  return (
+    <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold font-mono">
+      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+      <span>Deadline: {timeLeft}</span>
+    </div>
+  );
+};
+
 const MyTeam = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
+
 
   // Modals state
   const [confirmLeave, setConfirmLeave] = useState({ isOpen: false, teamId: null });
@@ -245,13 +280,19 @@ const MyTeam = () => {
 
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
-              <div className="space-y-1">
-                <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold uppercase">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{team.hackathon?.title || 'Hackathon Event'}</span>
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="inline-flex items-center space-x-2 px-3 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold uppercase">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{team.hackathon?.title || 'Hackathon Event'}</span>
+                  </div>
+                  {team.hackathon?.submissionDeadline && (
+                    <SubmissionDeadlineTimer deadline={team.hackathon.submissionDeadline} />
+                  )}
                 </div>
                 <h1 className="text-3xl font-extrabold text-white">{team.teamName}</h1>
               </div>
+
 
               {/* Team Actions */}
               <div className="flex flex-wrap items-center gap-3">

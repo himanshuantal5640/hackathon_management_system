@@ -34,6 +34,7 @@ const HackathonForm = ({ initialData = null, onSubmit, isSubmitting = false }) =
           startDate: formatDateForInput(initialData.startDate),
           endDate: formatDateForInput(initialData.endDate),
           registrationDeadline: formatDateForInput(initialData.registrationDeadline),
+          submissionDeadline: formatDateForInput(initialData.submissionDeadline),
         }
       : {
           mode: 'Online',
@@ -143,7 +144,7 @@ const HackathonForm = ({ initialData = null, onSubmit, isSubmitting = false }) =
       </div>
 
       {/* Dates Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
             Registration Deadline *
@@ -165,6 +166,31 @@ const HackathonForm = ({ initialData = null, onSubmit, isSubmitting = false }) =
           />
           {errors.registrationDeadline && (
             <p className="mt-1 text-xs text-red-400 font-medium">{errors.registrationDeadline.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+            Submission Deadline (Last Date to Submit Assignment) *
+          </label>
+          <input
+            type="datetime-local"
+            {...register('submissionDeadline', {
+              required: 'Submission deadline is required',
+              validate: (val) => {
+                const regDeadlineVal = watch('registrationDeadline');
+                if (regDeadlineVal && new Date(val) <= new Date(regDeadlineVal)) {
+                  return 'Submission deadline must be after Registration Deadline';
+                }
+                return true;
+              },
+            })}
+            className={`w-full px-4 py-3 rounded-xl glass-input text-sm text-white focus:outline-none ${
+              errors.submissionDeadline ? 'border-red-500' : ''
+            }`}
+          />
+          {errors.submissionDeadline && (
+            <p className="mt-1 text-xs text-red-400 font-medium">{errors.submissionDeadline.message}</p>
           )}
         </div>
 

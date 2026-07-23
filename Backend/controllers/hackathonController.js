@@ -1,7 +1,7 @@
 const Hackathon = require('../models/Hackathon');
 
 // Helper function to validate hackathon date rules
-const validateHackathonDates = (startDate, endDate, registrationDeadline) => {
+const validateHackathonDates = (startDate, endDate, registrationDeadline, submissionDeadline) => {
   const start = new Date(startDate);
   const end = new Date(endDate);
   const deadline = new Date(registrationDeadline);
@@ -18,6 +18,15 @@ const validateHackathonDates = (startDate, endDate, registrationDeadline) => {
   }
   if (end <= start) {
     errors.push('End date must be after the hackathon start date');
+  }
+
+  if (submissionDeadline) {
+    const subDeadline = new Date(submissionDeadline);
+    if (isNaN(subDeadline.getTime())) {
+      errors.push('Invalid submission deadline format');
+    } else if (subDeadline <= deadline) {
+      errors.push('Submission deadline must be after the registration deadline');
+    }
   }
 
   return errors;
@@ -38,6 +47,7 @@ const createHackathon = async (req, res, next) => {
       startDate,
       endDate,
       registrationDeadline,
+      submissionDeadline,
       prizePool,
       maxTeamSize,
       rules,
@@ -48,12 +58,12 @@ const createHackathon = async (req, res, next) => {
     // Validate required fields
     if (
       !title || !description || !theme || !mode || !venue ||
-      !startDate || !endDate || !registrationDeadline ||
+      !startDate || !endDate || !registrationDeadline || !submissionDeadline ||
       prizePool === undefined || !maxTeamSize || !rules || !judgingCriteria
     ) {
       return res.status(400).json({
         success: false,
-        message: 'Please fill in all required fields'
+        message: 'Please fill in all required fields, including the Submission Deadline'
       });
     }
 
@@ -67,7 +77,7 @@ const createHackathon = async (req, res, next) => {
     }
 
     // Validate Dates
-    const dateErrors = validateHackathonDates(startDate, endDate, registrationDeadline);
+    const dateErrors = validateHackathonDates(startDate, endDate, registrationDeadline, submissionDeadline);
     if (dateErrors.length > 0) {
       return res.status(400).json({
         success: false,
@@ -85,6 +95,7 @@ const createHackathon = async (req, res, next) => {
       startDate,
       endDate,
       registrationDeadline,
+      submissionDeadline,
       prizePool: Number(prizePool),
       maxTeamSize: teamSize,
       rules,
@@ -93,6 +104,7 @@ const createHackathon = async (req, res, next) => {
       status: 'Upcoming',
       createdBy: req.user._id
     });
+
 
     res.status(201).json({
       success: true,
@@ -216,6 +228,7 @@ const updateHackathon = async (req, res, next) => {
       startDate,
       endDate,
       registrationDeadline,
+      submissionDeadline,
       prizePool,
       maxTeamSize,
       rules,
@@ -240,8 +253,9 @@ const updateHackathon = async (req, res, next) => {
     const newStart = startDate || hackathon.startDate;
     const newEnd = endDate || hackathon.endDate;
     const newDeadline = registrationDeadline || hackathon.registrationDeadline;
+    const newSubDeadline = submissionDeadline || hackathon.submissionDeadline;
 
-    const dateErrors = validateHackathonDates(newStart, newEnd, newDeadline);
+    const dateErrors = validateHackathonDates(newStart, newEnd, newDeadline, newSubDeadline);
     if (dateErrors.length > 0) {
       return res.status(400).json({
         success: false,
@@ -258,11 +272,13 @@ const updateHackathon = async (req, res, next) => {
     if (startDate) hackathon.startDate = startDate;
     if (endDate) hackathon.endDate = endDate;
     if (registrationDeadline) hackathon.registrationDeadline = registrationDeadline;
+    if (submissionDeadline) hackathon.submissionDeadline = submissionDeadline;
     if (prizePool !== undefined) hackathon.prizePool = Number(prizePool);
     if (rules) hackathon.rules = rules;
     if (judgingCriteria) hackathon.judgingCriteria = judgingCriteria;
     if (status) hackathon.status = status;
     if (isPublished !== undefined) hackathon.isPublished = Boolean(isPublished);
+
 
     const updatedHackathon = await hackathon.save();
 

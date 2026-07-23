@@ -58,13 +58,16 @@ import Reports from './pages/Reports';
 // Route Guards
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleBasedRoute from './components/RoleBasedRoute';
+import DoubtChatBubble from './components/DoubtChatBubble';
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
         <Router>
+          <DoubtChatBubble />
           <Routes>
+
             <Route path="/" element={<MainLayout />}>
               {/* Only Home, Login, Signup are unauthenticated public pages */}
               <Route index element={<Home />} />

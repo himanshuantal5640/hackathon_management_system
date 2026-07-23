@@ -399,7 +399,7 @@ const getMyTeam = async (req, res, next) => {
     const teams = await Team.find(query)
       .populate('leader', 'name email profileImage')
       .populate('members', 'name email profileImage')
-      .populate('hackathon', 'title mode venue status registrationDeadline maxTeamSize');
+      .populate('hackathon', 'title mode venue status registrationDeadline submissionDeadline maxTeamSize');
 
     res.status(200).json({
       success: true,

@@ -69,6 +69,9 @@ const Navbar = () => {
 
       // Listen for invitation notification
       socket.on('receiveInviteNotification', (data) => {
+        if (user?.role !== 'participant') return;
+        if (data.senderId === user?._id) return;
+
         const newNotif = {
           id: Math.random().toString(),
           type: 'INVITATION',
@@ -85,6 +88,7 @@ const Navbar = () => {
         });
         setUnreadCount(prev => prev + 1);
       });
+
     }
 
     return () => {

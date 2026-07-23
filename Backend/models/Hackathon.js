@@ -105,8 +105,13 @@ const hackathonSchema = new mongoose.Schema(
     },
     publishedAt: {
       type: Date
+    },
+    submissionDeadline: {
+      type: Date,
+      required: [true, 'Submission deadline date is required']
     }
   },
+
 
   {
     timestamps: true

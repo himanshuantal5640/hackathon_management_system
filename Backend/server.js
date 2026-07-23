@@ -124,6 +124,12 @@ io.on('connection', (socket) => {
     io.to(data.teamId).emit('receiveTeamMessage', data);
   });
 
+  socket.on('sendDoubtMessage', (data) => {
+    // Broadcast doubt/proposal messages to the specific room
+    io.to(data.proposalId).emit('receiveDoubtMessage', data);
+  });
+
+
   socket.on('broadcastSystemNotification', (data) => {
     // Broadcast notifications like event created, deleted, or result published
     socket.broadcast.emit('receiveSystemNotification', data);
