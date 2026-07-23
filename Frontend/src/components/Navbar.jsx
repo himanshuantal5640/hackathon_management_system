@@ -137,6 +137,18 @@ const Navbar = () => {
                   <Users className="w-3.5 h-3.5 text-purple-400" />
                   <span>My Team</span>
                 </Link>
+
+                <Link
+                  to="/participant/my-submission"
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isActive('/participant/my-submission')
+                      ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  <FolderKanban className="w-3.5 h-3.5 text-pink-400" />
+                  <span>My Submissions</span>
+                </Link>
               </>
             )}
 
@@ -367,8 +379,35 @@ const Navbar = () => {
 
           {isAuthenticated ? (
             <>
+              {isParticipant && (
+                <>
+                  <Link
+                    to="/participant/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-3 py-2 rounded-xl text-base font-medium text-indigo-400 hover:bg-slate-800"
+                  >
+                    Participant Hub
+                  </Link>
+                  <Link
+                    to="/participant/my-team"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-3 py-2 rounded-xl text-base font-medium text-purple-400 hover:bg-slate-800"
+                  >
+                    My Team
+                  </Link>
+                  <Link
+                    to="/participant/my-submission"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-3 py-2 rounded-xl text-base font-medium text-pink-400 hover:bg-slate-800"
+                  >
+                    My Submissions
+                  </Link>
+                </>
+              )}
+
               <Link
                 to="/reports"
+
                 onClick={() => setMobileMenuOpen(false)}
                 className="block px-3 py-2 rounded-xl text-base font-medium text-slate-300 hover:bg-slate-800 hover:text-white"
               >

@@ -21,10 +21,12 @@ import {
 } from 'lucide-react';
 
 const HackathonDetails = () => {
+  const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const [hackathon, setHackathon] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {

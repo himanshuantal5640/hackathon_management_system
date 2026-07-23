@@ -12,8 +12,10 @@ import {
   Trash2, 
   CheckCircle, 
   Lock, 
-  Unlock 
+  Unlock,
+  UserCheck
 } from 'lucide-react';
+
 
 const HackathonCard = ({
   hackathon,
@@ -131,6 +133,13 @@ const HackathonCard = ({
           {isOwner && (
             <>
               <Link
+                to={`/organizer/assign-judges/${_id}`}
+                className="p-2 rounded-xl text-xs font-semibold text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 transition-colors"
+                title="Assign Judges"
+              >
+                <UserCheck className="w-4 h-4" />
+              </Link>
+              <Link
                 to={`/organizer/edit/${_id}`}
                 className="p-2 rounded-xl text-xs font-semibold text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 transition-colors"
                 title="Edit Hackathon"
@@ -146,6 +155,7 @@ const HackathonCard = ({
               </button>
             </>
           )}
+
         </div>
 
         {/* Organizer Controls: Publish & Registration Toggle */}

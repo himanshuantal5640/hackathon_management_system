@@ -2,12 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { teamService } from '../services/teamService';
 import { useAuth } from '../hooks/useAuth';
 import toast from 'react-hot-toast';
-import { Users, Crown, LogOut, Trash2, Edit3, ArrowLeft, Sparkles, AlertTriangle } from 'lucide-react';
+import { 
+  Users, 
+  Crown, 
+  LogOut, 
+  Trash2, 
+  Edit3, 
+  ArrowLeft, 
+  Sparkles, 
+  AlertTriangle, 
+  MessageSquare, 
+  Send 
+} from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import InviteCodeBox from '../components/InviteCodeBox';
 import MemberCard from '../components/MemberCard';
 import ConfirmationModal from '../components/ConfirmationModal';
-import EmptyState from '../components/EmptyState';
 import { useNavigate } from 'react-router-dom';
 
 const MyTeam = () => {
@@ -22,6 +32,10 @@ const MyTeam = () => {
   const [confirmRemove, setConfirmRemove] = useState({ isOpen: false, teamId: null, memberId: null, name: '' });
   const [confirmTransfer, setConfirmTransfer] = useState({ isOpen: false, teamId: null, newLeaderId: null, name: '' });
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Chat panel state
+  const [chatMessages, setChatMessages] = useState({});
+  const [chatInputs, setChatInputs] = useState({});
 
   const fetchMyTeams = async () => {
     try {
@@ -39,6 +53,48 @@ const MyTeam = () => {
   useEffect(() => {
     fetchMyTeams();
   }, []);
+
+  useEffect(() => {
+    if (teams.length > 0) {
+      const messages = {};
+      const inputs = {};
+      teams.forEach(t => {
+        const stored = localStorage.getItem(`team_chat_${t._id}`);
+        messages[t._id] = stored ? JSON.parse(stored) : [
+          {
+            senderName: 'System Bot',
+            senderId: 'system',
+            text: `Welcome to team ${t.teamName}! Send this direct link to your friends so they can click and join your team automatically: ${window.location.origin}/participant/join-team/${t.inviteCode}`
+          }
+        ];
+        // pre-populate input with invite link
+        inputs[t._id] = `Hey! Join our hackathon team using this link: ${window.location.origin}/participant/join-team/${t.inviteCode}`;
+      });
+      setChatMessages(messages);
+      setChatInputs(inputs);
+    }
+  }, [teams]);
+
+  const handleSendMessage = (e, teamId) => {
+    e.preventDefault();
+    const text = chatInputs[teamId];
+    if (!text || text.trim().length === 0) return;
+
+    const newMsg = {
+      senderName: user?.name || 'Participant',
+      senderId: user?._id || 'user',
+      text: text.trim()
+    };
+
+    const updatedMessages = {
+      ...chatMessages,
+      [teamId]: [...(chatMessages[teamId] || []), newMsg]
+    };
+
+    setChatMessages(updatedMessages);
+    localStorage.setItem(`team_chat_${teamId}`, JSON.stringify(updatedMessages[teamId]));
+    setChatInputs({ ...chatInputs, [teamId]: '' });
+  };
 
   const handleLeaveTeam = async () => {
     setActionLoading(true);
@@ -102,14 +158,32 @@ const MyTeam = () => {
 
   if (teams.length === 0) {
     return (
-      <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-        <EmptyState
-          icon={Users}
-          title="No Active Team Found"
-          description="You are currently not part of any active hackathon team."
-          actionLabel="Create a Team"
-          onAction={() => navigate('/participant/create-team')}
-        />
+      <div className="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center justify-center">
+        <div className="glass-panel p-8 sm:p-12 rounded-3xl border border-slate-800 text-center space-y-6 shadow-2xl w-full">
+          <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 inline-block">
+            <Users className="w-10 h-10" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-black text-white">No Active Team Found</h2>
+            <p className="text-sm text-slate-400">
+              You are currently not part of any active hackathon team. Get started by creating your own team or joining one with an invite code or invite link.
+            </p>
+          </div>
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+            <button
+              onClick={() => navigate('/participant/create-team')}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>Create a Team</span>
+            </button>
+            <button
+              onClick={() => navigate('/participant/join-team')}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 hover:text-white hover:bg-slate-850 transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>Join a Team</span>
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -154,8 +228,8 @@ const MyTeam = () => {
               </div>
             </div>
 
-            {/* Invite Code Component */}
-            <div className="max-w-xl">
+            {/* Invite Code & Direct Link Component */}
+            <div className="max-w-3xl">
               <InviteCodeBox code={team.inviteCode} />
             </div>
 
@@ -188,6 +262,81 @@ const MyTeam = () => {
                 ))}
               </div>
             </div>
+
+            {/* Team Chat & Link Sharer Panel */}
+            <div className="glass-card p-6 rounded-2xl border border-slate-800 space-y-4 relative z-10">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-indigo-400" />
+                  <span>Team Chat & Share Panel</span>
+                </h3>
+                <span className="text-[10px] uppercase font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
+                  Direct Link Sharing Active
+                </span>
+              </div>
+
+              {/* Chat Feed */}
+              <div className="h-44 overflow-y-auto p-4 rounded-xl bg-slate-950 border border-slate-900 space-y-3 flex flex-col">
+                {chatMessages[team._id]?.length === 0 ? (
+                  <p className="text-xs text-slate-500 text-center my-auto italic">
+                    No messages yet. Send a join link to invite your team members!
+                  </p>
+                ) : (
+                  chatMessages[team._id]?.map((msg, index) => {
+                    const isSystem = msg.senderId === 'system';
+                    const isCurrentUser = msg.senderId === user?._id;
+                    return (
+                      <div key={index} className={`flex flex-col max-w-[85%] ${isSystem ? 'mx-auto text-center' : isCurrentUser ? 'self-end items-end' : 'self-start items-start'}`}>
+                        {!isSystem && <span className="text-[10px] text-slate-500 mb-0.5">{msg.senderName}</span>}
+                        <div className={`p-3 rounded-2xl text-xs leading-relaxed ${
+                          isSystem 
+                            ? 'bg-slate-900/50 text-slate-400 border border-slate-800 text-center rounded-xl font-mono' 
+                            : isCurrentUser 
+                              ? 'bg-indigo-600 text-white rounded-tr-none' 
+                              : 'bg-slate-800 text-slate-200 rounded-tl-none'
+                        }`}>
+                          {msg.text.includes('/join-team/') ? (
+                            <span>
+                              {msg.text.split(' ').map((word, wIdx) => {
+                                if (word.startsWith('http://') || word.startsWith('https://')) {
+                                  return (
+                                    <a key={wIdx} href={word} className="underline text-amber-300 font-bold hover:text-amber-200 break-all inline-block">
+                                      {word}
+                                    </a>
+                                  );
+                                }
+                                return word + ' ';
+                              })}
+                            </span>
+                          ) : (
+                            msg.text
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Message Composer */}
+              <form onSubmit={(e) => handleSendMessage(e, team._id)} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Type message or paste invite link..."
+                  value={chatInputs[team._id] || ''}
+                  onChange={(e) => setChatInputs({ ...chatInputs, [team._id]: e.target.value })}
+                  className="flex-1 px-4 py-3 rounded-xl glass-input text-xs text-white focus:outline-none placeholder-slate-500"
+                />
+                <button
+                  type="submit"
+                  className="px-5 py-3 rounded-xl text-xs font-semibold text-white bg-indigo-650 hover:bg-indigo-600 transition-all flex items-center gap-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Send</span>
+                </button>
+              </form>
+            </div>
+
           </div>
         );
       })}

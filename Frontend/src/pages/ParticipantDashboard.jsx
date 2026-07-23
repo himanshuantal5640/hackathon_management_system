@@ -13,7 +13,8 @@ import {
   UserPlus, 
   Compass, 
   ArrowRight,
-  Sparkles
+  Sparkles,
+  FolderKanban
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import RegistrationCard from '../components/RegistrationCard';
@@ -105,7 +106,16 @@ const ParticipantDashboard = () => {
             <UserPlus className="w-4 h-4" />
             <span>Join Team</span>
           </Link>
+
+          <Link
+            to="/participant/my-submission"
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-pink-300 bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 transition-all flex items-center gap-1.5"
+          >
+            <FolderKanban className="w-4 h-4" />
+            <span>My Submissions</span>
+          </Link>
         </div>
+
       </div>
 
       {/* Metrics Cards */}

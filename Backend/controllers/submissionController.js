@@ -87,19 +87,20 @@ const createSubmission = async (req, res, next) => {
       });
     }
 
-    // Check if Team Registration is Approved
+    // Check if Team Registration is Approved or Pending
     const reg = await Registration.findOne({
       hackathon: hackathonId,
       $or: [{ participant: req.user._id }, { team: teamId }],
-      status: 'Approved'
+      status: { $in: ['Approved', 'Pending'] }
     });
 
     if (!reg && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Only teams with an APPROVED hackathon registration can submit projects.'
+        message: 'Only teams with a registered hackathon entry can submit projects.'
       });
     }
+
 
     // Prevent duplicate submission per team per hackathon
     const existingSubmission = await Submission.findOne({ team: teamId, hackathon: hackathonId });

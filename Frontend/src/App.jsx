@@ -197,6 +197,15 @@ function App() {
                 }
               />
               <Route
+                path="participant/join-team/:code"
+                element={
+                  <RoleBasedRoute allowedRoles={['participant', 'admin']}>
+                    <JoinTeam />
+                  </RoleBasedRoute>
+                }
+              />
+
+              <Route
                 path="participant/create-submission"
                 element={
                   <RoleBasedRoute allowedRoles={['participant', 'admin']}>

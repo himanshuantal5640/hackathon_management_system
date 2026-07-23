@@ -1,19 +1,41 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { teamService } from '../services/teamService';
 import toast from 'react-hot-toast';
 import { Key, UserPlus, ArrowLeft, Users, Crown, CheckCircle2 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const JoinTeam = () => {
-  const [inviteCode, setInviteCode] = useState('');
+  const { code } = useParams();
+  const [inviteCode, setInviteCode] = useState(code || '');
   const [teamPreview, setTeamPreview] = useState(null);
   const [searching, setSearching] = useState(false);
   const [joining, setJoining] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (code) {
+      setInviteCode(code.toUpperCase());
+      const lookupTeam = async () => {
+        setSearching(true);
+        setTeamPreview(null);
+        try {
+          const response = await teamService.getTeamByInviteCode(code.trim());
+          if (response.success) {
+            setTeamPreview(response.team);
+          }
+        } catch (err) {
+          toast.error(err.message || 'Invalid invite link or team is full.');
+        } finally {
+          setSearching(false);
+        }
+      };
+      lookupTeam();
+    }
+  }, [code]);
+
   const handleSearchTeam = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!inviteCode || inviteCode.trim().length === 0) {
       toast.error('Please enter an invite code');
       return;
@@ -67,7 +89,7 @@ const JoinTeam = () => {
           </div>
           <h1 className="text-2xl font-black text-white">Join a Hackathon Team</h1>
           <p className="text-xs text-slate-400">
-            Enter the 8-character invite code provided by your team leader.
+            {code ? 'Ready to join team via invite link!' : 'Enter the 8-character invite code provided by your team leader.'}
           </p>
         </div>
 
