@@ -184,10 +184,10 @@ const HackathonDetails = () => {
               </div>
             </div>
 
-            {user?.role === 'organizer' || user?.role === 'admin' ? (
+            {user?.role === 'organizer' || user?.role === 'admin' || user?.role === 'judge' ? (
               <div className="px-6 py-3.5 rounded-2xl text-xs font-bold text-purple-300 bg-purple-500/15 border border-purple-500/30 flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-purple-400" />
-                <span>Organizer Console (View Only)</span>
+                <span>View Only Mode</span>
               </div>
             ) : (
               <Link
@@ -198,6 +198,7 @@ const HackathonDetails = () => {
                 <span>Register Now</span>
               </Link>
             )}
+
 
 
           </div>

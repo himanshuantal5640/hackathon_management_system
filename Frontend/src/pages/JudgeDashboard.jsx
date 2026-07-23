@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { reviewService } from '../services/reviewService';
+import { hackathonService } from '../services/hackathonService';
 import toast from 'react-hot-toast';
 import { 
   Award, 
@@ -9,25 +10,30 @@ import {
   Sparkles, 
   ArrowRight, 
   FileCheck, 
-  Layers 
+  Layers,
+  Trophy,
+  ExternalLink
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const JudgeDashboard = () => {
   const [assignments, setAssignments] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [hackathons, setHackathons] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [assignRes, reviewRes] = await Promise.all([
+        const [assignRes, reviewRes, hackRes] = await Promise.all([
           reviewService.getJudgeAssignments(),
           reviewService.getJudgeReviews(),
+          hackathonService.getAllHackathons(),
         ]);
 
         if (assignRes.success) setAssignments(assignRes.assignments || []);
         if (reviewRes.success) setReviews(reviewRes.reviews || []);
+        if (hackRes.success) setHackathons(hackRes.hackathons || []);
       } catch (err) {
         toast.error('Failed to load judge dashboard data');
       } finally {
@@ -57,7 +63,7 @@ const JudgeDashboard = () => {
       : '0.0';
 
   return (
-    <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-12">
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 glass-panel p-8 rounded-3xl border border-slate-800 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 blur-3xl rounded-full pointer-events-none"></div>
@@ -203,6 +209,52 @@ const JudgeDashboard = () => {
                 </div>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      {/* Explore Hackathons Section */}
+      <div className="space-y-6 pt-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-indigo-450" />
+            <span>Hackathon Events Directory</span>
+          </h2>
+        </div>
+
+        {hackathons.length === 0 ? (
+          <div className="py-12 glass-panel rounded-3xl border border-slate-800 text-center space-y-3">
+            <Trophy className="w-10 h-10 text-slate-600 mx-auto" />
+            <p className="text-slate-400 text-sm">No hackathons registered in the platform yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {hackathons.map((h) => (
+              <div key={h._id} className="glass-card rounded-3xl p-5 border border-slate-800 space-y-4 flex flex-col justify-between hover:border-slate-700 transition-all">
+                <div className="space-y-3">
+                  <div className="relative h-32 rounded-2xl overflow-hidden">
+                    <img src={h.bannerImage} alt={h.title} className="w-full h-full object-cover" />
+                    <div className="absolute top-3 right-3">
+                      <span className="px-2.5 py-1 rounded bg-indigo-600 text-white text-[10px] font-bold uppercase">
+                        {h.mode}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white leading-tight">{h.title}</h3>
+                    <p className="text-xs text-slate-400 mt-1">{h.theme}</p>
+                  </div>
+                </div>
+
+                <Link
+                  to={`/hackathons/${h._id}`}
+                  className="w-full py-2 rounded-xl text-xs font-semibold text-slate-300 bg-slate-900 border border-slate-800 hover:text-white hover:bg-slate-850 text-center transition-all flex items-center justify-center space-x-1.5"
+                >
+                  <span>View Event Details</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            ))}
           </div>
         )}
       </div>

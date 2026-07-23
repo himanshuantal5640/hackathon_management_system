@@ -268,6 +268,64 @@ const getLeaderboard = async (req, res, next) => {
       })
       .sort({ rank: 1 });
 
+    // Fallback: Dynamically compute standings on the fly if the Leaderboard collection is empty
+    if (leaderboard.length === 0) {
+      const submissions = await Submission.find({ hackathon: hackathonId })
+        .populate({
+          path: 'team',
+          populate: [
+            { path: 'leader', select: 'name email profileImage' },
+            { path: 'members', select: 'name email profileImage' }
+          ]
+        });
+
+      const scoredSubmissions = [];
+
+      for (const sub of submissions) {
+        // Fetch all completed/locked reviews to determine the score
+        const reviews = await Review.find({ 
+          submission: sub._id, 
+          status: { $in: ['Completed', 'Locked'] } 
+        });
+        const judgeCount = reviews.length;
+        const totalSum = reviews.reduce((sum, r) => sum + (r.totalScore || 0), 0);
+        const averageScore = judgeCount > 0 ? Number((totalSum / judgeCount).toFixed(2)) : 0;
+
+        scoredSubmissions.push({
+          team: sub.team,
+          submission: sub,
+          totalScore: totalSum,
+          averageScore,
+          judgeCount
+        });
+      }
+
+      // Sort descending by average score, then total score, then judge count
+      scoredSubmissions.sort((a, b) => {
+        if (b.averageScore !== a.averageScore) return b.averageScore - a.averageScore;
+        if (b.totalScore !== a.totalScore) return b.totalScore - a.totalScore;
+        return b.judgeCount - a.judgeCount;
+      });
+
+      // Construct rank list
+      leaderboard = scoredSubmissions.map((item, index) => {
+        const rank = index + 1;
+        let position = 'Participant';
+        if (rank === 1) position = 'First Place';
+        else if (rank === 2) position = 'Second Place';
+        else if (rank === 3) position = 'Third Place';
+        return {
+          rank,
+          team: item.team,
+          submission: item.submission,
+          averageScore: item.averageScore,
+          judgeCount: item.judgeCount,
+          position
+        };
+      });
+    }
+
+
     // Client/query search filter by team name, project name, or leader name
     if (search && search.trim() !== '') {
       const regex = new RegExp(search.trim(), 'i');
