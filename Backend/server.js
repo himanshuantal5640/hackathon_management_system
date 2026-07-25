@@ -33,7 +33,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Essential Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 const allowedOrigins = [
-  process.env.CLIENT_URL,
+  'https://hackathon-management-system-ashen.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174',
 ].filter(Boolean);
