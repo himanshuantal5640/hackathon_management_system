@@ -1,9 +1,5 @@
 const User = require('../models/User');
 const Hackathon = require('../models/Hackathon');
-
-// @desc    Get all users in the system
-// @route   GET /api/admin/users
-// @access  Private (Admin only)
 const getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find({}).sort({ createdAt: -1 });
@@ -17,9 +13,6 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
-// @desc    Update a user's role
-// @route   PUT /api/admin/users/:id/role
-// @access  Private (Admin only)
 const updateUserRole = async (req, res, next) => {
   try {
     const { role } = req.body;
@@ -40,7 +33,7 @@ const updateUserRole = async (req, res, next) => {
       });
     }
 
-    // Do not allow an admin to change their own role to prevent self-locking
+
     if (user._id.toString() === req.user._id.toString()) {
       return res.status(400).json({
         success: false,
@@ -61,9 +54,6 @@ const updateUserRole = async (req, res, next) => {
   }
 };
 
-// @desc    Toggle user block status
-// @route   PATCH /api/admin/users/:id/block
-// @access  Private (Admin only)
 const toggleUserBlock = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
@@ -94,10 +84,6 @@ const toggleUserBlock = async (req, res, next) => {
     next(error);
   }
 };
-
-// @desc    Delete user
-// @route   DELETE /api/admin/users/:id
-// @access  Private (Admin only)
 const deleteUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
@@ -127,9 +113,6 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-// @desc    Get all hackathons
-// @route   GET /api/admin/hackathons
-// @access  Private (Admin only)
 const getAllHackathons = async (req, res, next) => {
   try {
     const hackathons = await Hackathon.find({}).sort({ createdAt: -1 });
@@ -143,9 +126,6 @@ const getAllHackathons = async (req, res, next) => {
   }
 };
 
-// @desc    Delete any hackathon globally
-// @route   DELETE /api/admin/hackathons/:id
-// @access  Private (Admin only)
 const deleteHackathon = async (req, res, next) => {
   try {
     const hackathon = await Hackathon.findById(req.params.id);
