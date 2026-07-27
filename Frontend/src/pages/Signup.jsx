@@ -44,6 +44,10 @@ const Signup = () => {
   };
 
   const onSubmit = async (data) => {
+    if (data.role === 'admin' && data.email.toLowerCase() !== 'workwithgolu7@gmail.com') {
+      toast.error('Only workwithgolu7@gmail.com is authorized to register as Administrator.');
+      return;
+    }
     setIsSubmitting(true);
     try {
       const payload = {
@@ -55,6 +59,7 @@ const Signup = () => {
       };
 
       await signup(payload);
+
       toast.success('Account created successfully! Welcome to HackPulse.');
       navigate('/profile', { replace: true });
     } catch (err) {

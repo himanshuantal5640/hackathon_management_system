@@ -15,6 +15,15 @@ const signup = async (req, res, next) => {
       });
     }
 
+    // Restrict Admin registration to workwithgolu7@gmail.com only
+    if (role === 'admin' && email.toLowerCase() !== 'workwithgolu7@gmail.com') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access Denied: Only workwithgolu7@gmail.com is authorized to register as Administrator.'
+      });
+    }
+
+
     // Check duplicate email
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {

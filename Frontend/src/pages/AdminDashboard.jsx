@@ -167,6 +167,106 @@ const AdminDashboard = () => {
     return matchesSearch && matchesRole;
   });
 
+  const renderUserCardByRole = (roleTitle, roleIcon, roleName) => {
+
+    const roleUsers = filteredUsers.filter(u => u.role === roleName);
+    const IconComponent = roleIcon;
+
+    return (
+      <div className="glass-panel rounded-3xl border border-slate-850 p-6 space-y-4 bg-slate-950/20 shadow-xl flex flex-col h-[500px]">
+        <div className="flex items-center justify-between border-b border-slate-850 pb-4">
+          <div className="flex items-center space-x-2.5">
+            <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <IconComponent className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white uppercase tracking-wider">{roleTitle}</h3>
+              <p className="text-[10px] text-slate-400">Total: {roleUsers.length}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto pr-1 space-y-3">
+          {roleUsers.length === 0 ? (
+            <p className="text-center text-slate-600 italic text-[11px] py-12">
+              No {roleName}s found.
+            </p>
+          ) : (
+            roleUsers.map(u => (
+              <div key={u._id} className="p-3 bg-slate-900/40 border border-slate-900 rounded-2xl flex flex-col space-y-2 hover:bg-slate-900/70 transition-all animate-in fade-in duration-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2.5 min-w-0">
+                    <img
+                      src={u.profileImage}
+                      alt={u.name}
+                      className="w-8 h-8 rounded-full border border-slate-900 object-cover"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-bold text-white text-xs truncate max-w-[140px]">{u.name}</p>
+                      <span className="text-slate-500 text-[9px] block truncate max-w-[140px]">{u.email}</span>
+                    </div>
+                  </div>
+
+                  <span className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full font-bold text-[9px] border ${
+                    u.isBlocked 
+                      ? 'bg-rose-500/10 text-rose-450 border-rose-500/15' 
+                      : 'bg-emerald-500/10 text-emerald-450 border-emerald-500/15'
+                  }`}>
+                    {u.isBlocked ? (
+                      <>
+                        <Lock className="w-2.5 h-2.5 text-rose-450" />
+                        <span>Suspended</span>
+                      </>
+                    ) : (
+                      <>
+                        <Unlock className="w-2.5 h-2.5 text-emerald-400" />
+                        <span>Active</span>
+                      </>
+                    )}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between border-t border-slate-900/60 pt-2 text-[10px]">
+                  <span className="text-slate-550">Joined: {new Date(u.createdAt).toLocaleDateString()}</span>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => { setSelectedUser(u); setNewRole(u.role); }}
+                      className="p-1 rounded bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 transition-all"
+                      title="Change Role"
+                      disabled={actionLoading}
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleToggleBlock(u._id, u.isBlocked)}
+                      className={`p-1 rounded transition-all ${
+                        u.isBlocked
+                          ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'
+                          : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400'
+                      }`}
+                      title={u.isBlocked ? "Unblock Account" : "Block Account"}
+                      disabled={actionLoading}
+                    >
+                      {u.isBlocked ? <ShieldCheck className="w-3.5 h-3.5" /> : <UserX className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteUser(u._id, u.name)}
+                      className="p-1 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
+                      title="Delete User"
+                      disabled={actionLoading}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const COLORS = ['#6366f1', '#a855f7', '#f59e0b', '#10b981', '#ef4444'];
   const { stats, growthTrend, hackathonStatusBreakdown } = analytics || {};
 
@@ -340,120 +440,11 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Directory Table */}
-          <div className="glass-panel rounded-3xl border border-slate-800 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-slate-800/80 bg-slate-900/60 text-slate-400 text-xs font-black uppercase">
-                    <th className="py-4 px-6">User Details</th>
-                    <th className="py-4 px-6">Primary Role</th>
-                    <th className="py-4 px-6">Account Status</th>
-                    <th className="py-4 px-6">Joined Date</th>
-                    <th className="py-4 px-6 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-850 bg-slate-950/40 text-xs">
-                  {filteredUsers.length === 0 ? (
-                    <tr>
-                      <td colSpan="5" className="py-12 text-center text-slate-500 italic">
-                        No registered users match your search queries.
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredUsers.map(u => (
-                      <tr key={u._id} className="hover:bg-slate-900/20 transition-colors">
-                        <td className="py-4 px-6">
-                          <div className="flex items-center space-x-3">
-                            <img
-                              src={u.profileImage}
-                              alt={u.name}
-                              className="w-8 h-8 rounded-full border border-slate-800 object-cover"
-                            />
-                            <div>
-                              <p className="font-bold text-white text-sm">{u.name}</p>
-                              <span className="text-slate-400 text-[11px]">{u.email}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className={`px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase border ${
-                            u.role === 'admin' 
-                              ? 'bg-red-500/10 text-red-400 border-red-500/20' 
-                              : u.role === 'organizer' 
-                                ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                                : u.role === 'judge'
-                                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                                  : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
-                          }`}>
-                            {u.role}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] border ${
-                            u.isBlocked 
-                              ? 'bg-rose-500/10 text-rose-450 border-rose-500/20' 
-                              : 'bg-emerald-500/10 text-emerald-450 border-emerald-500/20'
-                          }`}>
-                            {u.isBlocked ? (
-                              <>
-                                <Lock className="w-3 h-3 text-rose-400" />
-                                <span>Suspended</span>
-                              </>
-                            ) : (
-                              <>
-                                <Unlock className="w-3 h-3 text-emerald-400" />
-                                <span>Active</span>
-                              </>
-                            )}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-slate-400">
-                          {new Date(u.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <div className="flex items-center justify-end space-x-2.5">
-                            {/* Edit Role Button */}
-                            <button
-                              onClick={() => { setSelectedUser(u); setNewRole(u.role); }}
-                              className="p-2 rounded-lg bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 transition-colors"
-                              title="Edit User Role"
-                              disabled={actionLoading}
-                            >
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            
-                            {/* Block Toggle Button */}
-                            <button
-                              onClick={() => handleToggleBlock(u._id, u.isBlocked)}
-                              className={`p-2 rounded-lg transition-colors ${
-                                u.isBlocked
-                                  ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'
-                                  : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400'
-                              }`}
-                              title={u.isBlocked ? "Unblock Account" : "Block/Suspend Account"}
-                              disabled={actionLoading}
-                            >
-                              {u.isBlocked ? <ShieldCheck className="w-4 h-4" /> : <UserX className="w-4 h-4" />}
-                            </button>
-
-                            {/* Delete User */}
-                            <button
-                              onClick={() => handleDeleteUser(u._id, u.name)}
-                              className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
-                              title="Delete User Permanently"
-                              disabled={actionLoading}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+          {/* Directory Categorized Panels */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {renderUserCardByRole("Participant Directory", Users, "participant")}
+            {renderUserCardByRole("Organizer Directory", Building2, "organizer")}
+            {renderUserCardByRole("Judge Console Directory", Award, "judge")}
           </div>
         </div>
       )}
