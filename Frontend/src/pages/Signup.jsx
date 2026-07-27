@@ -68,6 +68,7 @@ const Signup = () => {
     { id: 'participant', label: 'Participant', icon: Users, desc: 'Build & Submit Projects' },
     { id: 'organizer', label: 'Organizer', icon: Trophy, desc: 'Host & Manage Hackathons' },
     { id: 'judge', label: 'Judge', icon: Award, desc: 'Evaluate Submissions' },
+    { id: 'admin', label: 'Admin', icon: ShieldCheck, desc: 'Manage platform operations' }
   ];
 
   return (
@@ -92,7 +93,8 @@ const Signup = () => {
               Select Your Primary Role
             </label>
             <input type="hidden" {...register('role')} />
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+
               {rolesConfig.map((roleObj) => {
                 const IconComp = roleObj.icon;
                 const isSelected = selectedRole === roleObj.id;

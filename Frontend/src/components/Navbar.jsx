@@ -257,18 +257,19 @@ const Navbar = () => {
             {isAuthenticated && isAdmin && (
               <>
                 <Link
-                  to="/admin/analytics"
+                  to="/admin/dashboard"
                   className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                    isActive('/admin/analytics')
-                      ? 'bg-red-600/20 text-red-300 border border-red-500/30'
+                    isActive('/admin/dashboard')
+                      ? 'bg-red-650/20 text-red-300 border border-red-500/30'
                       : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
                   }`}
                 >
-                  <BarChart3 className="w-3.5 h-3.5 text-red-405" />
-                  <span>Console</span>
+                  <LayoutDashboard className="w-3.5 h-3.5 text-red-400" />
+                  <span>Admin Hub</span>
                 </Link>
               </>
             )}
+
 
             {/* Reports Link */}
             {isAuthenticated && (
@@ -408,14 +409,15 @@ const Navbar = () => {
 
                     {isAdmin && (
                       <Link
-                        to="/admin/analytics"
+                        to="/admin/dashboard"
                         onClick={() => setUserDropdownOpen(false)}
                         className="flex items-center space-x-2.5 px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/70 hover:text-white transition-colors"
                       >
-                        <BarChart3 className="w-4 h-4 text-red-400" />
-                        <span>System Analytics</span>
+                        <LayoutDashboard className="w-4 h-4 text-red-400" />
+                        <span>Admin Hub</span>
                       </Link>
                     )}
+
 
                     {isJudge && (
                       <Link

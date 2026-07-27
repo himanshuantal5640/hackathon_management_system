@@ -49,11 +49,12 @@ import ReviewManagement from './pages/ReviewManagement';
 import Leaderboard from './pages/Leaderboard';
 import WinnerAnnouncement from './pages/WinnerAnnouncement';
 import PublicResults from './pages/PublicResults';
-import AdminAnalytics from './pages/AdminAnalytics';
+import AdminDashboard from './pages/AdminDashboard';
 import OrganizerAnalytics from './pages/OrganizerAnalytics';
 import JudgeAnalytics from './pages/JudgeAnalytics';
 import ParticipantAnalytics from './pages/ParticipantAnalytics';
 import Reports from './pages/Reports';
+
 
 // Route Guards
 import ProtectedRoute from './components/ProtectedRoute';
@@ -293,13 +294,14 @@ function App() {
 
               {/* Admin Role Routes */}
               <Route
-                path="admin/analytics"
+                path="admin/dashboard"
                 element={
                   <RoleBasedRoute allowedRoles={['admin']}>
-                    <AdminAnalytics />
+                    <AdminDashboard />
                   </RoleBasedRoute>
                 }
               />
+
 
               {/* Organizer Role Routes */}
               <Route

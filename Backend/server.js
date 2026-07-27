@@ -19,7 +19,9 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const leaderboardRoutes = require('./routes/leaderboardRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const exportRoutes = require('./routes/exportRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const errorHandler = require('./middleware/errorHandler');
+
 
 // Initialize Express App
 const app = express();
@@ -80,6 +82,8 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/admin', adminRoutes);
+
 
 
 

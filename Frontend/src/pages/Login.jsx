@@ -34,8 +34,9 @@ const Login = () => {
 
       if (from === '/profile' || isRestrictedPath) {
         if (loggedUser?.role === 'admin') {
-          targetPath = '/admin/analytics';
+          targetPath = '/admin/dashboard';
         } else if (loggedUser?.role === 'organizer') {
+
           targetPath = '/organizer/dashboard';
         } else if (loggedUser?.role === 'judge') {
           targetPath = '/judge/dashboard';
