@@ -1,82 +1,105 @@
-# HackPulse
-### The Ultimate Hackathon Hub for Developers, Organizers, and Judges
+# ⚡ HackPulse — End-to-End Hackathon Management Platform
 
-HackPulse is a full-featured hackathon management platform built to take the friction out of running and participating in coding competitions. Whether you are a organizer coordinating registrations, a judge reviewing project submissions, or a participant collaborating in real-time with your teammates, HackPulse provides a unified workspace for everyone.
+> **A premium, responsive MERN-stack application designed to unify participants, organizers, judges, and administrators under a single glassmorphic workspace.**
 
----
-
-## he Three Pillars (User Roles)
-
-HackPulse is designed around three distinct, polished workflows:
-
-### 1.  Participants
-* **Team Formation**: Create teams or join existing ones using unique invitation codes.
-* **Live Team Chat**: Real-time messaging with your teammates (powered by Socket.io) directly within your team dashboard.
-* **Doubt Desk**: Submit chat proposals to organizers to resolve questions. Once approved, a live chat room opens.
-* **Countdown Deadlines**: Keep track of the ticking clock for project submissions.
-* **Project Submission**: Upload drafts or finalize your codebase and submission details.
-
-### 2.  Organizers
-* **Event Console**: Create, edit, publish, or delete hackathon events.
-* **Registration Control**: Open or close registrations in one click, and approve/reject pending registrations.
-* **Judge Allocation**: Assign specific judges to evaluate incoming project submissions.
-* **Doubt Console**: A centralized panel to review and approve participant doubt queries, initializing real-time support chats.
-* **Leaderboards & Reports**: Declare winners, publish final results, and export leaderboard analytics to PDF or CSV files.
-
-### 3.  Judges
-* **Assigned Projects Portal**: A dedicated workspace showing pending evaluations and completed project reviews.
-* **Interactive Evaluation**: Submit rubrics, write feedback notes, save evaluation drafts, or finalize scores.
-* **Organizer Hot-Line**: A direct, secure chat link to communicate instantly with organizers (bypassing any request approvals) to clarify criteria.
+Most college hackathons are currently duct-taped together using Google Forms, WhatsApp groups, spreadsheets, and emails. **HackPulse** replaces this chaotic workflow with a centralized platform. It manages the entire lifecycle of a hackathon—from initial registration and team formation to live mentor support, rubric-based evaluation, and PDF reports generation.
 
 ---
 
-## The Tech Stack
+## 🚀 Key System Roles & Capabilities
 
-* **Frontend**: React (Vite), Tailwind CSS (Vanilla styling), React Router DOM, React Hook Form, Socket.io Client.
-* **Backend**: Node.js, Express.js, Socket.io, JWT Authentication, Cookie Parsers.
-* **Database**: MongoDB Atlas via Mongoose.
+The platform revolves around four distinct roles, each mapped to a tailored portal:
+
+### 1. 👥 Participants
+* **Dynamic Team Formation:** Create teams or join existing groups via secure, automatically generated unique invitation tokens.
+* **Live Team Chatroom:** Real-time team communication powered by WebSockets (`Socket.io`) directly within your team dashboard.
+* **Isolated Doubt Desk:** Submit support proposals to organizers to resolve questions. Once accepted, it initiates a live chat room.
+* **Countdown Deadlines:** Stay on track with dynamic deadline countdown timers for project code submissions.
+
+### 2. 📢 Organizers
+* **Event Builder:** Create, update, publish, or archive hackathon events complete with banners, themes, prize pools, and schedules.
+* **Registration Control:** Approve or reject participant registration requests with a single click.
+* **Rubric Allocation:** Assign specific judges to evaluate specific team project submissions.
+* **Help Desk Console:** Review and approve doubts, opening direct channels to guide teams.
+* **Leaderboards & Reports:** Announce winners and export scoreboards to clean CSV or PDF files.
+
+### 3. ⚖️ Judges
+* **Evaluation Portal:** Access assigned team codebases, review problem statements, and submit scores.
+* **Rubric Grading:** Grade entries using pre-defined rubrics with support for draft saves and final evaluations.
+* **Direct Helpdesk Line:** Send messages directly to the organizer help desk (bypassing approval flows) to clarify grading criteria.
+
+### 4. 🛡️ Administrators (Platform Owners)
+* **Real-time Analytics Dashboard:** Monitor system-wide registration growth trends and hackathon lifecycle distributions.
+* **User Directory Governance:** Access a categorized directory of Participants, Organizers, and Judges. Search, filter, modify roles, or suspend/delete violating accounts.
+* **Event Supervision:** Override guidelines-violating hackathons and force-delete them.
 
 ---
 
-##  Getting Started Locally
+## 🛠️ Tech Stack & Architecture
 
-To run the application on your computer:
+* **Frontend:** React (Vite), Tailwind CSS (Harmonious light/dark mode overrides), React Router, React Hook Form, Socket.io Client, Lucide Icons, Recharts.
+* **Backend:** Node.js, Express.js (MVC Pattern), Socket.io, JWT Authentication (HTTP-only cookies), Bcrypt Hashing.
+* **Database:** MongoDB Atlas via Mongoose.
 
-### 1. Prerequisites
-Ensure you have **Node.js** and **npm** installed on your system.
+---
 
-### 2. Backend Setup
-1. Open the `/Backend` directory.
-2. Create a `.env` file and define the following variables:
+## 🔒 Security Practices
+
+1. **HTTP-Only JWT Cookies:** Authentication tokens are stored inside secure, HTTP-only cookies to eliminate XSS token theft.
+2. **Password Complexity Rules:** User signup and profile updates require passwords with a minimum of 6 characters, including at least one letter, one number, and one special character (e.g. `Pass123!`).
+3. **Role Validation Middleware:** Restricted API endpoints are protected using robust custom middleware validation (`protect`, `isAdmin`).
+4. **Admin Access Lock:** Administrator registration is globally restricted. Only the authorized email `workwithgolu7@gmail.com` can sign up as an Admin.
+
+---
+
+## 💻 Running the App Locally
+
+### 1. Backend Setup
+1. Navigate to `/Backend` and install dependencies:
+   ```bash
+   cd Backend
+   npm install
+   ```
+2. Create a `.env` file inside the `/Backend` folder:
    ```env
    PORT=5000
    MONGO_URI=your_mongodb_connection_string
    JWT_SECRET=your_random_secure_hex_key
    NODE_ENV=development
    ```
-3. Install dependencies and start the server:
+3. Run the backend server:
    ```bash
-   npm install
    npm run dev
    ```
 
-### 3. Frontend Setup
-1. Open the `/Frontend` directory.
-2. Run Vite's local dev server (it proxy-routes `/api` to the backend automatically):
+### 2. Frontend Setup
+1. Navigate to `/Frontend` and install dependencies:
    ```bash
+   cd ../Frontend
    npm install
+   ```
+2. For local testing, **comment out or delete** the `.env` file in the `/Frontend` directory (if it exists) so that Vite uses its built-in proxy settings.
+3. Start the Vite dev server:
+   ```bash
    npm run dev
    ```
-3. Open your browser and head to `http://localhost:5173`.
+4. Open `http://localhost:5173` in your browser.
 
 ---
 
-##  Deploying to Production
+## ☁️ Production Deployment Steps
 
-When hosting the application:
+### 1. Database Setup
+* Spin up a free shared cluster on **MongoDB Atlas**.
+* Whitelist access from all IP addresses (`0.0.0.0/0`) under Network Access to allow serverless hosting platforms to connect.
 
-1. **Database**: Use a free database cluster on **MongoDB Atlas** (make sure to whitelist access from all IPs `0.0.0.0/0`).
-2. **Backend**: Host on **Render** or **Railway** (these services support WebSockets out of the box). Add environment config values for `MONGO_URI`, `JWT_SECRET`, and `PORT`.
-3. **Frontend**: Host on **Vercel** or **Netlify**. Set the root folder to `Frontend`. Set the environment variables in your build configuration:
-   * `VITE_API_URL` ➔ `https://your-backend.onrender.com/api`
-   * `VITE_SOCKET_URL` ➔ `https://your-backend.onrender.com`
+### 2. Backend Hosting (e.g. Render / Railway)
+* Connect your GitHub repository.
+* Configure the base root folder to `Backend`.
+* Set your environment variables (`MONGO_URI`, `JWT_SECRET`, `NODE_ENV=production`).
+
+### 3. Frontend Hosting (e.g. Vercel / Netlify)
+* Connect the repository and set the root directory to `Frontend`.
+* Configure the production build variables:
+  * `VITE_API_URL` ➔ `https://your-backend-service.onrender.com/api`
+  * `VITE_SOCKET_URL` ➔ `https://your-backend-service.onrender.com`
