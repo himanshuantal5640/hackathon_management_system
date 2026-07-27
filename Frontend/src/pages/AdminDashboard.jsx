@@ -54,7 +54,10 @@ const AdminDashboard = () => {
   // Modals / Modifying states
   const [selectedUser, setSelectedUser] = useState(null);
   const [newRole, setNewRole] = useState('');
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [hackathonToDelete, setHackathonToDelete] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+
 
   const fetchDashboardData = async () => {
     try {
@@ -117,16 +120,15 @@ const AdminDashboard = () => {
   };
 
   // Handler to delete user
-  const handleDeleteUser = async (userId, name) => {
-    if (!window.confirm(`Are you absolutely sure you want to permanently delete user "${name}"? This action is irreversible.`)) {
-      return;
-    }
+  const handleDeleteUserConfirm = async () => {
+    if (!userToDelete) return;
     try {
       setActionLoading(true);
-      const res = await adminService.deleteUser(userId);
+      const res = await adminService.deleteUser(userToDelete._id);
       if (res.success) {
         toast.success(res.message || 'User account deleted successfully');
-        setUsers(users.filter(u => u._id !== userId));
+        setUsers(users.filter(u => u._id !== userToDelete._id));
+        setUserToDelete(null);
       }
     } catch (err) {
       toast.error(err.message || 'Failed to delete user account');
@@ -136,16 +138,15 @@ const AdminDashboard = () => {
   };
 
   // Handler to delete hackathon
-  const handleDeleteHackathon = async (hackathonId, title) => {
-    if (!window.confirm(`Are you sure you want to delete hackathon "${title}"? All submissions, registrations, and leaderboard records will be lost.`)) {
-      return;
-    }
+  const handleDeleteHackathonConfirm = async () => {
+    if (!hackathonToDelete) return;
     try {
       setActionLoading(true);
-      const res = await adminService.deleteHackathon(hackathonId);
+      const res = await adminService.deleteHackathon(hackathonToDelete._id);
       if (res.success) {
         toast.success(res.message || 'Hackathon deleted successfully');
-        setHackathons(hackathons.filter(h => h._id !== hackathonId));
+        setHackathons(hackathons.filter(h => h._id !== hackathonToDelete._id));
+        setHackathonToDelete(null);
       }
     } catch (err) {
       toast.error(err.message || 'Failed to delete hackathon');
@@ -153,6 +154,7 @@ const AdminDashboard = () => {
       setActionLoading(false);
     }
   };
+
 
   if (loading) {
     return <LoadingSpinner fullScreen label="Loading secure Administrator Console..." />;
@@ -250,13 +252,14 @@ const AdminDashboard = () => {
                       {u.isBlocked ? <ShieldCheck className="w-3.5 h-3.5" /> : <UserX className="w-3.5 h-3.5" />}
                     </button>
                     <button
-                      onClick={() => handleDeleteUser(u._id, u.name)}
+                      onClick={() => setUserToDelete(u)}
                       className="p-1 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
                       title="Delete User"
                       disabled={actionLoading}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
+
                   </div>
                 </div>
               </div>
@@ -512,13 +515,14 @@ const AdminDashboard = () => {
                         </td>
                         <td className="py-4 px-6 text-right">
                           <button
-                            onClick={() => handleDeleteHackathon(h._id, h.title)}
+                            onClick={() => setHackathonToDelete(h)}
                             className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
                             title="Force Delete Hackathon"
                             disabled={actionLoading}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
+
                         </td>
                       </tr>
                     ))
@@ -578,8 +582,87 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Custom User Delete Confirmation Modal */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md glass-panel p-6 rounded-3xl border border-slate-850 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center space-x-3 text-red-400">
+              <div className="p-3 bg-red-500/10 rounded-2xl border border-red-500/20">
+                <Trash2 className="w-6 h-6 text-red-405" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Delete User Profile</h3>
+                <p className="text-[10px] text-slate-500">Permanently terminate platform access</p>
+              </div>
+            </div>
+            
+            <p className="text-xs text-slate-350 leading-relaxed">
+              Are you absolutely sure you want to permanently delete user account <strong>{userToDelete.name}</strong> ({userToDelete.email})? All profile data, settings, and registrations will be lost.
+            </p>
+
+            <div className="flex items-center justify-end space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setUserToDelete(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-450 hover:text-white bg-slate-900 border border-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteUserConfirm}
+                disabled={actionLoading}
+                className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-red-650 hover:bg-red-550 shadow-md shadow-red-500/25 disabled:opacity-50"
+              >
+                {actionLoading ? 'Deleting...' : 'Delete User'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Hackathon Delete Confirmation Modal */}
+      {hackathonToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md glass-panel p-6 rounded-3xl border border-slate-850 space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center space-x-3 text-red-405">
+              <div className="p-3 bg-red-500/10 rounded-2xl border border-red-500/20">
+                <Trophy className="w-6 h-6 text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Delete Hackathon Event</h3>
+                <p className="text-[10px] text-slate-500">Remove hackathon and registrations</p>
+              </div>
+            </div>
+            
+            <p className="text-xs text-slate-355 leading-relaxed">
+              Are you absolutely sure you want to delete the hackathon <strong>{hackathonToDelete.title}</strong>? All team creations, project submissions, scoring evaluations, and leaderboard standings will be permanently deleted.
+            </p>
+
+            <div className="flex items-center justify-end space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setHackathonToDelete(null)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-450 hover:text-white bg-slate-900 border border-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteHackathonConfirm}
+                disabled={actionLoading}
+                className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-red-650 hover:bg-red-550 shadow-md shadow-red-500/25 disabled:opacity-50"
+              >
+                {actionLoading ? 'Deleting...' : 'Delete Hackathon'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 
 export default AdminDashboard;
