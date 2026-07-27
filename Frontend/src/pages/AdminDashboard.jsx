@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { adminService } from '../services/adminService';
 import { analyticsService } from '../services/analyticsService';
 import toast from 'react-hot-toast';
+import { useTheme } from '../context/ThemeContext';
+
 import { 
   Users, 
   Trophy, 
@@ -41,7 +43,10 @@ import {
 } from 'recharts';
 
 const AdminDashboard = () => {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const [activeTab, setActiveTab] = useState('analytics'); // 'analytics', 'users', 'hackathons'
+
   const [analytics, setAnalytics] = useState(null);
   const [users, setUsers] = useState([]);
   const [hackathons, setHackathons] = useState([]);
@@ -170,13 +175,16 @@ const AdminDashboard = () => {
   });
 
   const renderUserCardByRole = (roleTitle, roleIcon, roleName) => {
-
     const roleUsers = filteredUsers.filter(u => u.role === roleName);
     const IconComponent = roleIcon;
 
     return (
-      <div className="glass-panel rounded-3xl border border-slate-850 p-6 space-y-4 bg-slate-950/20 shadow-xl flex flex-col h-[500px]">
-        <div className="flex items-center justify-between border-b border-slate-850 pb-4">
+      <div className={`glass-panel rounded-3xl border p-6 space-y-4 shadow-xl flex flex-col h-[500px] ${
+        isDark ? 'border-slate-850 bg-slate-950/20' : 'border-slate-200 bg-white shadow-sm'
+      }`}>
+        <div className={`flex items-center justify-between border-b pb-4 ${
+          isDark ? 'border-slate-850' : 'border-slate-100'
+        }`}>
           <div className="flex items-center space-x-2.5">
             <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
               <IconComponent className="w-5 h-5" />
@@ -195,7 +203,11 @@ const AdminDashboard = () => {
             </p>
           ) : (
             roleUsers.map(u => (
-              <div key={u._id} className="p-3 bg-slate-900/40 border border-slate-900 rounded-2xl flex flex-col space-y-2 hover:bg-slate-900/70 transition-all animate-in fade-in duration-100">
+              <div key={u._id} className={`p-3 border rounded-2xl flex flex-col space-y-2 transition-all duration-100 ${
+                isDark 
+                  ? 'bg-slate-900/40 border-slate-900 hover:bg-slate-900/70' 
+                  : 'bg-slate-50 border-slate-100 hover:bg-slate-100/60'
+              } animate-in fade-in duration-100`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2.5 min-w-0">
                     <img
@@ -228,8 +240,10 @@ const AdminDashboard = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between border-t border-slate-900/60 pt-2 text-[10px]">
-                  <span className="text-slate-550">Joined: {new Date(u.createdAt).toLocaleDateString()}</span>
+                <div className={`flex items-center justify-between border-t pt-2 text-[10px] ${
+                  isDark ? 'border-slate-900/60' : 'border-slate-200/50'
+                }`}>
+                  <span className="text-slate-500">Joined: {new Date(u.createdAt).toLocaleDateString()}</span>
                   <div className="flex items-center space-x-1">
                     <button
                       onClick={() => { setSelectedUser(u); setNewRole(u.role); }}
@@ -243,7 +257,7 @@ const AdminDashboard = () => {
                       onClick={() => handleToggleBlock(u._id, u.isBlocked)}
                       className={`p-1 rounded transition-all ${
                         u.isBlocked
-                          ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400'
+                          ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-450'
                           : 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400'
                       }`}
                       title={u.isBlocked ? "Unblock Account" : "Block Account"}
@@ -259,7 +273,6 @@ const AdminDashboard = () => {
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
-
                   </div>
                 </div>
               </div>
@@ -269,6 +282,8 @@ const AdminDashboard = () => {
       </div>
     );
   };
+
+
 
   const COLORS = ['#6366f1', '#a855f7', '#f59e0b', '#10b981', '#ef4444'];
   const { stats, growthTrend, hackathonStatusBreakdown } = analytics || {};
@@ -416,7 +431,9 @@ const AdminDashboard = () => {
       {activeTab === 'users' && (
         <div className="space-y-6 animate-in fade-in duration-200">
           {/* Search and Filters Bar */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
+          <div className={`flex flex-col sm:flex-row gap-4 justify-between items-center p-4 rounded-2xl border ${
+            isDark ? 'bg-slate-900/40 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+          }`}>
             <div className="relative w-full sm:w-80">
               <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-500" />
               <input
@@ -432,8 +449,11 @@ const AdminDashboard = () => {
               <select
                 value={userRoleFilter}
                 onChange={(e) => setUserRoleFilter(e.target.value)}
-                className="px-3 py-2 rounded-xl glass-input text-xs text-white bg-slate-900 border border-slate-800 focus:outline-none"
+                className={`px-3 py-2 rounded-xl glass-input text-xs text-white focus:outline-none ${
+                  isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-250 text-slate-700'
+                }`}
               >
+
                 <option value="all">All Roles</option>
                 <option value="participant">Participant</option>
                 <option value="organizer">Organizer</option>
@@ -455,11 +475,15 @@ const AdminDashboard = () => {
       {/* Tab 3: Hackathon Management */}
       {activeTab === 'hackathons' && (
         <div className="space-y-6 animate-in fade-in duration-200">
-          <div className="glass-panel rounded-3xl border border-slate-800 overflow-hidden">
+          <div className={`glass-panel rounded-3xl border overflow-hidden ${
+            isDark ? 'border-slate-800' : 'border-slate-200 bg-white'
+          }`}>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800/80 bg-slate-900/60 text-slate-400 text-xs font-black uppercase">
+                  <tr className={`border-b text-xs font-black uppercase ${
+                    isDark ? 'border-slate-800/80 bg-slate-900/60 text-slate-400' : 'border-slate-200 bg-slate-50 text-slate-600'
+                  }`}>
                     <th className="py-4 px-6">Hackathon Details</th>
                     <th className="py-4 px-6">Venue Mode</th>
                     <th className="py-4 px-6">Status</th>
@@ -468,7 +492,9 @@ const AdminDashboard = () => {
                     <th className="py-4 px-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-850 bg-slate-950/40 text-xs">
+                <tbody className={`divide-y text-xs ${
+                  isDark ? 'divide-slate-850 bg-slate-950/40' : 'divide-slate-200 bg-white/50'
+                }`}>
                   {hackathons.length === 0 ? (
                     <tr>
                       <td colSpan="6" className="py-12 text-center text-slate-500 italic">
@@ -477,7 +503,7 @@ const AdminDashboard = () => {
                     </tr>
                   ) : (
                     hackathons.map(h => (
-                      <tr key={h._id} className="hover:bg-slate-900/20 transition-colors">
+                      <tr key={h._id} className={`transition-colors ${isDark ? 'hover:bg-slate-900/20' : 'hover:bg-slate-50'}`}>
                         <td className="py-4 px-6">
                           <div className="flex items-center space-x-3">
                             <img
@@ -492,11 +518,14 @@ const AdminDashboard = () => {
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-850 text-indigo-400 font-mono text-[10px]">
+                          <span className={`px-2 py-0.5 rounded font-mono text-[10px] ${
+                            isDark ? 'bg-slate-900 border border-slate-850 text-indigo-400' : 'bg-slate-100 border border-slate-200 text-indigo-650'
+                          }`}>
                             {h.mode}
                           </span>
                         </td>
                         <td className="py-4 px-6">
+
                           <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
                             h.status === 'Registration Open'
                               ? 'bg-emerald-500/10 text-emerald-450 border-emerald-500/20'
