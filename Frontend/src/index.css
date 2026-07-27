@@ -85,11 +85,13 @@ body.light .glass-panel {
   background: rgba(255, 255, 255, 0.85);
   border: 1px solid rgba(203, 213, 225, 0.6);
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  color: #0f172a;
 }
 
 body.light .glass-card {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(203, 213, 225, 0.6);
+  color: #334155;
 }
 
 body.light .glass-card:hover {
@@ -103,17 +105,42 @@ body.light .glass-input {
   color: #0f172a;
 }
 
-body.light .text-white {
+/* Light theme typography overrides (except for solid buttons/backgrounds) */
+body.light .text-white:not(button):not(a.bg-indigo-650):not(a.bg-indigo-600):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]) {
   color: #0f172a !important;
 }
 
-body.light .text-slate-300 {
+body.light .text-slate-200:not(button):not(a.bg-indigo-650):not(a.bg-indigo-600):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]) {
   color: #334155 !important;
 }
 
-body.light .text-slate-400 {
+body.light .text-slate-300:not(button):not(a.bg-indigo-650):not(a.bg-indigo-600):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]) {
+  color: #334155 !important;
+}
+
+body.light .text-slate-400:not(button):not(a.bg-indigo-650):not(a.bg-indigo-600):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]) {
   color: #475569 !important;
 }
+
+/* Force white text on solid buttons/backgrounds in light theme */
+body.light button.bg-indigo-600,
+body.light button.bg-indigo-650,
+body.light a.bg-indigo-600,
+body.light a.bg-indigo-650,
+body.light button.bg-red-650,
+body.light a.bg-red-650,
+body.light .bg-indigo-600,
+body.light .bg-indigo-650,
+body.light .bg-red-650,
+body.light .bg-purple-600,
+body.light .bg-emerald-600,
+body.light [class*="bg-indigo-"],
+body.light [class*="bg-purple-"],
+body.light [class*="bg-red-"],
+body.light [class*="bg-emerald-"] {
+  color: #ffffff !important;
+}
+
 
 body.light .bg-slate-900 {
   background-color: #e2e8f0 !important;
