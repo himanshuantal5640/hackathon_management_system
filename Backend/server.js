@@ -1,0 +1,157 @@
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
+
+// Load environment variables
+dotenv.config();
+
+const path = require('path');
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
+const hackathonRoutes = require('./routes/hackathonRoutes');
+const registrationRoutes = require('./routes/registrationRoutes');
+const teamRoutes = require('./routes/teamRoutes');
+const submissionRoutes = require('./routes/submissionRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const leaderboardRoutes = require('./routes/leaderboardRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+const exportRoutes = require('./routes/exportRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const errorHandler = require('./middleware/errorHandler');
+
+
+// Initialize Express App
+const app = express();
+
+// Connect to MongoDB Database
+connectDB();
+
+// Serve static uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Essential Middleware
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+const allowedOrigins = [
+  'https://hackathon-management-system-ashen.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:5174',
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  })
+);
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+app.use(cookieParser());
+
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
+}
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    service: 'Hackathon Management Platform API'
+  });
+});
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/hackathons', hackathonRoutes);
+app.use('/api/registrations', registrationRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/submissions', submissionRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/export', exportRoutes);
+app.use('/api/admin', adminRoutes);
+
+
+
+
+
+
+
+// 404 Route Handler
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `API route not found: ${req.originalUrl}`
+  });
+});
+
+// Centralized Error Handling Middleware
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
+
+const http = require('http');
+const socketIo = require('socket.io');
+
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+  }
+});
+
+// Socket.io initialization
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+
+  socket.on('joinTeamRoom', (teamId) => {
+    socket.join(teamId);
+    console.log(`Socket ${socket.id} joined room: ${teamId}`);
+  });
+
+  socket.on('sendTeamMessage', (data) => {
+    // Broadcast message to the specific team room
+    io.to(data.teamId).emit('receiveTeamMessage', data);
+  });
+
+  socket.on('sendDoubtMessage', (data) => {
+    // Broadcast doubt/proposal messages to the specific room
+    io.to(data.proposalId).emit('receiveDoubtMessage', data);
+  });
+
+
+  socket.on('broadcastSystemNotification', (data) => {
+    // Broadcast notifications like event created, deleted, or result published
+    socket.broadcast.emit('receiveSystemNotification', data);
+  });
+
+  socket.on('sendInviteNotification', (data) => {
+    // Broadcast team invitation notification to all logged in clients
+    socket.broadcast.emit('receiveInviteNotification', data);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+});
+
+module.exports = app;
+

@@ -1,0 +1,181 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary-50: #eef2ff;
+  --color-primary-100: #e0e7ff;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+}
+
+body {
+  background-color: #020617;
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.12) 0px, transparent 50%);
+  background-attachment: fixed;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+body.light {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.08) 0px, transparent 50%);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* Responsive Table Wrapper */
+.responsive-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Glassmorphic custom utilities for Dark Mode */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.15);
+}
+
+.glass-input {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  transition: all 0.2s ease-in-out;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+/* Glassmorphic overrides for Light Mode */
+body.light .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+body.light .glass-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  color: #334155;
+}
+
+body.light .glass-card:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.2);
+}
+
+body.light .glass-input {
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(203, 213, 225, 1);
+  color: #0f172a;
+}
+
+/* Light theme typography overrides (except for solid buttons/backgrounds) */
+body.light .text-white:not(button):not(a.bg-indigo-650):not(a.bg-indigo-600):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]) {
+  color: #0f172a !important;
+}
+
+body.light .text-slate-200:not(button):not(a.bg-indigo-650):not(a.bg-indigo-600):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]) {
+  color: #334155 !important;
+}
+
+body.light .text-slate-300:not(button):not(a.bg-indigo-650):not(a.bg-indigo-600):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]) {
+  color: #334155 !important;
+}
+
+body.light .text-slate-400:not(button):not(a.bg-indigo-650):not(a.bg-indigo-600):not([class*="bg-"]):not([class*="from-"]):not([class*="to-"]) {
+  color: #475569 !important;
+}
+
+/* Force white text on solid buttons/backgrounds in light theme */
+body.light button.bg-indigo-600,
+body.light button.bg-indigo-650,
+body.light a.bg-indigo-600,
+body.light a.bg-indigo-650,
+body.light button.bg-red-650,
+body.light a.bg-red-650,
+body.light .bg-indigo-600,
+body.light .bg-indigo-650,
+body.light .bg-red-650,
+body.light .bg-purple-600,
+body.light .bg-emerald-600,
+body.light [class*="bg-indigo-"],
+body.light [class*="bg-purple-"],
+body.light [class*="bg-red-"],
+body.light [class*="bg-emerald-"] {
+  color: #ffffff !important;
+}
+
+
+body.light .bg-slate-900 {
+  background-color: #e2e8f0 !important;
+}
+
+body.light .bg-slate-950 {
+  background-color: #f1f5f9 !important;
+}
+
+body.light .border-slate-800 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Custom animated gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #f472b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
