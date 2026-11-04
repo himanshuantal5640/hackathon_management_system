@@ -2,6 +2,7 @@ import React from 'react';
 import StatusBadge from './StatusBadge';
 import { Lock, Eye, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getFileUrl } from '../utils/fileUrl';
 
 const EvaluationTable = ({ reviews, onLock, loadingId }) => {
   return (
@@ -25,7 +26,7 @@ const EvaluationTable = ({ reviews, onLock, loadingId }) => {
                   <div className="flex items-center space-x-3">
                     <img
                       src={
-                        rev.submission?.projectLogo ||
+                        getFileUrl(rev.submission?.projectLogo) ||
                         'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
                       }
                       alt={rev.submission?.projectName}

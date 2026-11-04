@@ -32,9 +32,13 @@ const CreateTeam = () => {
   useEffect(() => {
     const fetchHackathons = async () => {
       try {
-        const response = await hackathonService.getAllHackathons({ status: 'Registration Open' });
+        const response = await hackathonService.getAllHackathons();
         if (response.success) {
-          setHackathons(response.hackathons || []);
+          const active = (response.hackathons || []).filter((h) =>
+            ['Registration Open', 'Upcoming'].includes(h.status) &&
+            new Date(h.registrationDeadline) >= new Date()
+          );
+          setHackathons(active);
         }
       } catch (err) {
         toast.error('Failed to load active hackathons');

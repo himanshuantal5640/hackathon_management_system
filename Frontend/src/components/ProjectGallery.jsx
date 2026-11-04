@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Image as ImageIcon, X } from 'lucide-react';
+import { getFileUrl } from '../utils/fileUrl';
 
 const ProjectGallery = ({ screenshots = [] }) => {
   const [selectedImg, setSelectedImg] = useState(null);
@@ -14,24 +15,27 @@ const ProjectGallery = ({ screenshots = [] }) => {
       </h4>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {screenshots.map((img, idx) => (
-          <div
-            key={idx}
-            onClick={() => setSelectedImg(img)}
-            className="group relative h-28 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 cursor-pointer"
-          >
-            <img
-              src={img}
-              alt={`Screenshot ${idx + 1}`}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-            />
-            <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <span className="text-[10px] font-bold text-white bg-slate-900/80 px-2 py-1 rounded-md">
-                Enlarge
-              </span>
+        {screenshots.map((img, idx) => {
+          const resolvedSrc = getFileUrl(img);
+          return (
+            <div
+              key={idx}
+              onClick={() => setSelectedImg(resolvedSrc)}
+              className="group relative h-28 rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 cursor-pointer"
+            >
+              <img
+                src={resolvedSrc}
+                alt={`Screenshot ${idx + 1}`}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="text-[10px] font-bold text-white bg-slate-900/80 px-2 py-1 rounded-md">
+                  Enlarge
+                </span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Lightbox Modal */}

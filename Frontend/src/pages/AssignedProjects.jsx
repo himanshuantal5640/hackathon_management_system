@@ -6,6 +6,7 @@ import { Layers, Sparkles, ArrowRight, ExternalLink, FileText, CheckCircle2, Edi
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
 import GithubIcon from '../components/GithubIcon';
+import { getFileUrl } from '../utils/fileUrl';
 
 const AssignedProjects = () => {
   const [assignments, setAssignments] = useState([]);
@@ -79,7 +80,7 @@ const AssignedProjects = () => {
                   <div className="flex items-start space-x-3">
                     <img
                       src={
-                        sub.projectLogo ||
+                        getFileUrl(sub.projectLogo) ||
                         'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
                       }
                       alt={sub.projectName}
@@ -108,7 +109,7 @@ const AssignedProjects = () => {
                     )}
                     {sub.presentationPDF && (
                       <a
-                        href={sub.presentationPDF}
+                        href={getFileUrl(sub.presentationPDF)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-red-400 transition-colors flex items-center gap-1.5"

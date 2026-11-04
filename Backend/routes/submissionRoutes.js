@@ -8,11 +8,15 @@ const {
   getMySubmission,
   getHackathonSubmissions,
   submitProject,
-  changeSubmissionStatus
+  changeSubmissionStatus,
+  getSubmissionFile
 } = require('../controllers/submissionController');
 const { protect } = require('../middleware/authMiddleware');
 const { isOrganizer } = require('../middleware/organizerMiddleware');
 const { uploadSubmissionFiles } = require('../middleware/uploadMiddleware');
+
+// File view/download endpoint (public with safe basename sanitization)
+router.get('/file/:filename', getSubmissionFile);
 
 // Participant Submission Actions (Leader)
 router.post('/', protect, uploadSubmissionFiles, createSubmission);

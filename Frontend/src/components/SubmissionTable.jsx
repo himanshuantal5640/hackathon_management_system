@@ -3,6 +3,7 @@ import StatusBadge from './StatusBadge';
 import GithubIcon from './GithubIcon';
 import { ExternalLink, Download, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getFileUrl } from '../utils/fileUrl';
 
 const SubmissionTable = ({ submissions, onStatusChange, loadingId }) => {
   const statusOptions = ['Draft', 'Submitted', 'Under Review', 'Approved', 'Rejected'];
@@ -29,7 +30,7 @@ const SubmissionTable = ({ submissions, onStatusChange, loadingId }) => {
                   <div className="flex items-center space-x-3">
                     <img
                       src={
-                        sub.projectLogo ||
+                        getFileUrl(sub.projectLogo) ||
                         'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
                       }
                       alt={sub.projectName}
@@ -66,11 +67,11 @@ const SubmissionTable = ({ submissions, onStatusChange, loadingId }) => {
                   <div className="flex items-center space-x-2">
                     {sub.presentationPDF && (
                       <a
-                        href={sub.presentationPDF}
+                        href={getFileUrl(sub.presentationPDF)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
-                        title="Download Presentation PDF"
+                        title="Open Presentation PDF"
                       >
                         <Download className="w-4 h-4" />
                       </a>

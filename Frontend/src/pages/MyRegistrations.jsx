@@ -39,6 +39,7 @@ const MyRegistrations = () => {
   };
 
   const filteredRegistrations = registrations.filter((r) => {
+    if (!r.hackathon) return false;
     if (filterStatus === 'All') return r.status !== 'Cancelled';
     return r.status === filterStatus;
   });

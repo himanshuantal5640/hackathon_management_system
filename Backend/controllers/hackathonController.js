@@ -98,7 +98,7 @@ const createHackathon = async (req, res, next) => {
       rules,
       judgingCriteria,
       isPublished: Boolean(isPublished),
-      status: 'Upcoming',
+      status: Boolean(isPublished) ? 'Registration Open' : 'Upcoming',
       createdBy: req.user._id
     });
 
@@ -315,6 +315,9 @@ const publishHackathon = async (req, res, next) => {
   try {
     const hackathon = req.hackathon;
     hackathon.isPublished = true;
+    if (hackathon.status === 'Upcoming' && new Date() <= new Date(hackathon.registrationDeadline)) {
+      hackathon.status = 'Registration Open';
+    }
     await hackathon.save();
 
     res.status(200).json({

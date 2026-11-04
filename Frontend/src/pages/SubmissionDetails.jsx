@@ -9,6 +9,7 @@ import ProjectGallery from '../components/ProjectGallery';
 import LoadingSpinner from '../components/LoadingSpinner';
 import GithubIcon from '../components/GithubIcon';
 import { ArrowLeft, ExternalLink, Calendar, Users, Rocket } from 'lucide-react';
+import { getFileUrl } from '../utils/fileUrl';
 
 
 const SubmissionDetails = () => {
@@ -78,7 +79,7 @@ const SubmissionDetails = () => {
           <div className="flex items-center space-x-4">
             <img
               src={
-                projectLogo ||
+                getFileUrl(projectLogo) ||
                 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
               }
               alt={projectName}

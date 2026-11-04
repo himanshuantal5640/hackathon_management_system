@@ -16,6 +16,7 @@ import {
   Edit3
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { getFileUrl } from '../utils/fileUrl';
 
 const JudgeDashboard = () => {
   const [assignments, setAssignments] = useState([]);
@@ -204,7 +205,7 @@ const JudgeDashboard = () => {
                   <div className="flex items-center space-x-3">
                     <img
                       src={
-                        sub?.projectLogo ||
+                        getFileUrl(sub?.projectLogo) ||
                         'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
                       }
                       alt={sub?.projectName}
@@ -281,7 +282,7 @@ const JudgeDashboard = () => {
                   <div className="flex items-center space-x-3">
                     <img
                       src={
-                        sub?.projectLogo ||
+                        getFileUrl(sub?.projectLogo) ||
                         'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
                       }
                       alt={sub?.projectName}

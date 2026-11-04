@@ -2,6 +2,8 @@ import StatusBadge from './StatusBadge';
 import TechStackBadge from './TechStackBadge';
 import GithubIcon from './GithubIcon';
 import { ExternalLink, Eye, Edit3, CheckCircle2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { getFileUrl } from '../utils/fileUrl';
 
 
 const SubmissionCard = ({ submission, isLeader = false, onSubmitFinal }) => {
@@ -34,7 +36,7 @@ const SubmissionCard = ({ submission, isLeader = false, onSubmitFinal }) => {
         <div className="flex items-start space-x-3">
           <img
             src={
-              projectLogo ||
+              getFileUrl(projectLogo) ||
               'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
             }
             alt={projectName}

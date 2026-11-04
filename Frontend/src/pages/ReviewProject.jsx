@@ -8,6 +8,7 @@ import PDFViewer from '../components/PDFViewer';
 import ProjectGallery from '../components/ProjectGallery';
 import LoadingSpinner from '../components/LoadingSpinner';
 import GithubIcon from '../components/GithubIcon';
+import { getFileUrl } from '../utils/fileUrl';
 import { 
   Award, 
   ArrowLeft, 
@@ -158,7 +159,7 @@ const ReviewProject = () => {
           <div className="flex items-center space-x-4">
             <img
               src={
-                submission.projectLogo ||
+                getFileUrl(submission.projectLogo) ||
                 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
               }
               alt={submission.projectName}

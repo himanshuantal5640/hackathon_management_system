@@ -73,8 +73,11 @@ const RegisterHackathon = () => {
 
   const isRegistered = regStatus?.isRegistered;
   const currentReg = regStatus?.registration;
-  const isRegistrationClosed = hackathon.status !== 'Registration Open';
   const isDeadlineCrossed = new Date() > new Date(hackathon.registrationDeadline);
+  const isRegistrationClosed =
+    hackathon.status === 'Registration Closed' ||
+    hackathon.status === 'Completed' ||
+    (!['Registration Open', 'Upcoming'].includes(hackathon.status));
 
   return (
     <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -136,6 +139,22 @@ const RegisterHackathon = () => {
                   : 'The organizer has closed registration for this event.'}
               </p>
             </div>
+          </div>
+        ) : currentReg?.status === 'Rejected' ? (
+          <div className="p-6 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-2 text-rose-300">
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-6 h-6 text-rose-400 flex-shrink-0" />
+              <div>
+                <h3 className="text-base font-bold text-white">Previous Registration Rejected</h3>
+                <p className="text-xs text-slate-300">
+                  {currentReg.remarks ? `Organizer feedback: ${currentReg.remarks}` : 'Your previous registration was rejected. You can submit a new registration.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : currentReg?.status === 'Cancelled' ? (
+          <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/60 text-xs text-slate-300 flex items-center space-x-2">
+            <span>ℹ️ You previously cancelled your registration. You can re-register below.</span>
           </div>
         ) : null}
 

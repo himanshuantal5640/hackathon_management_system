@@ -1,6 +1,7 @@
 const Registration = require('../models/Registration');
 const Hackathon = require('../models/Hackathon');
 const User = require('../models/User');
+const Team = require('../models/Team');
 
 const registerHackathon = async (req, res, next) => {
   try {
@@ -22,10 +23,11 @@ const registerHackathon = async (req, res, next) => {
     }
 
     // Check Hackathon Status
-    if (hackathon.status !== 'Registration Open') {
+    const allowedStatuses = ['Registration Open', 'Upcoming'];
+    if (!allowedStatuses.includes(hackathon.status) || hackathon.status === 'Registration Closed' || hackathon.status === 'Completed') {
       return res.status(400).json({
         success: false,
-        message: `Registration is currently closed. Status: ${hackathon.status}`
+        message: `Registration is currently closed for this hackathon. Status: ${hackathon.status}`
       });
     }
 
@@ -33,7 +35,7 @@ const registerHackathon = async (req, res, next) => {
     if (new Date() > new Date(hackathon.registrationDeadline)) {
       return res.status(400).json({
         success: false,
-        message: 'Registration deadline for this hackathon has crossed.'
+        message: 'Registration deadline for this hackathon has passed.'
       });
     }
 
@@ -43,18 +45,23 @@ const registerHackathon = async (req, res, next) => {
       hackathon: hackathonId
     });
 
-    if (existingReg && existingReg.status !== 'Cancelled') {
+    if (existingReg && (existingReg.status === 'Pending' || existingReg.status === 'Approved')) {
       return res.status(409).json({
         success: false,
-        message: 'You have already registered for this hackathon'
+        message: existingReg.status === 'Approved'
+          ? 'You are already an approved participant in this hackathon.'
+          : 'You have already registered for this hackathon. Awaiting organizer approval.'
       });
     }
 
-    // If existing registration was cancelled, re-activate as Pending
+    // If existing registration was cancelled or rejected, re-activate as Pending
     let registration;
-    if (existingReg && existingReg.status === 'Cancelled') {
+    if (existingReg) {
       existingReg.status = 'Pending';
       existingReg.registeredAt = new Date();
+      existingReg.remarks = '';
+      existingReg.approvedBy = null;
+      existingReg.team = null;
       registration = await existingReg.save();
     } else {
       registration = await Registration.create({
@@ -94,6 +101,7 @@ const cancelRegistration = async (req, res, next) => {
     }
 
     registration.status = 'Cancelled';
+    registration.team = null;
     await registration.save();
 
     res.status(200).json({
@@ -136,7 +144,7 @@ const getRegistrationStatus = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      isRegistered: Boolean(registration && registration.status !== 'Cancelled'),
+      isRegistered: Boolean(registration && ['Pending', 'Approved'].includes(registration.status)),
       registration
     });
   } catch (error) {
@@ -153,6 +161,13 @@ const approveRegistration = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         message: 'Registration record not found'
+      });
+    }
+
+    if (!registration.hackathon) {
+      return res.status(404).json({
+        success: false,
+        message: 'Associated hackathon not found'
       });
     }
 
@@ -189,6 +204,13 @@ const rejectRegistration = async (req, res, next) => {
       return res.status(404).json({
         success: false,
         message: 'Registration record not found'
+      });
+    }
+
+    if (!registration.hackathon) {
+      return res.status(404).json({
+        success: false,
+        message: 'Associated hackathon not found'
       });
     }
 

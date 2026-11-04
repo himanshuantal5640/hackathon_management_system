@@ -11,18 +11,18 @@ const {
   openRegistration,
   closeRegistration
 } = require('../controllers/hackathonController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, optionalAuth } = require('../middleware/authMiddleware');
 const { isOrganizer, checkHackathonOwnership } = require('../middleware/organizerMiddleware');
 
 // Public route for listing hackathons (supports optional auth in controller)
-router.get('/', getAllHackathons);
+router.get('/', optionalAuth, getAllHackathons);
 
 // Private Organizer routes
 router.get('/my', protect, isOrganizer, getMyHackathons);
 router.post('/', protect, isOrganizer, createHackathon);
 
 // Single Hackathon detail route
-router.get('/:id', getHackathonById);
+router.get('/:id', optionalAuth, getHackathonById);
 
 // Owner / Admin mutation routes
 router.put('/:id', protect, isOrganizer, checkHackathonOwnership, updateHackathon);

@@ -8,6 +8,7 @@ import { UserCheck, Sparkles, CheckCircle2, UserPlus, Layers } from 'lucide-reac
 import LoadingSpinner from '../components/LoadingSpinner';
 import JudgeCard from '../components/JudgeCard';
 import EmptyState from '../components/EmptyState';
+import { getFileUrl } from '../utils/fileUrl';
 
 const AssignJudges = () => {
   const { hackathonId } = useParams();
@@ -207,7 +208,7 @@ const AssignJudges = () => {
                     <div className="flex items-center space-x-3">
                       <img
                         src={
-                          sub.projectLogo ||
+                          getFileUrl(sub.projectLogo) ||
                           'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
                         }
                         alt={sub.projectName}

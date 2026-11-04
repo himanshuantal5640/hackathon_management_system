@@ -29,11 +29,30 @@ const app = express();
 // Connect to MongoDB Database
 connectDB();
 
-// Serve static uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve static uploaded files with open CORS and inline display headers
+app.use(
+  '/uploads',
+  (req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+    if (req.path.toLowerCase().endsWith('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+      const filename = path.basename(req.path);
+      res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+    }
+    next();
+  },
+  express.static(path.join(__dirname, 'uploads'))
+);
 
 // Essential Middleware
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false,
+  })
+);
 const allowedOrigins = [
   'https://hackathon-management-system-ashen.vercel.app',
   'http://localhost:5173',

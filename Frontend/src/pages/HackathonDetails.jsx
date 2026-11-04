@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { hackathonService } from '../services/hackathonService';
+import { registrationService } from '../services/registrationService';
 import toast from 'react-hot-toast';
 import { useAuth } from '../hooks/useAuth';
 import StatusBadge from '../components/StatusBadge';
@@ -17,6 +18,7 @@ import {
   User, 
   Share2, 
   CheckCircle,
+  AlertCircle,
   Sparkles
 } from 'lucide-react';
 
@@ -25,6 +27,7 @@ const HackathonDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [hackathon, setHackathon] = useState(null);
+  const [regStatus, setRegStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -36,6 +39,17 @@ const HackathonDetails = () => {
         if (response.success) {
           setHackathon(response.hackathon);
         }
+
+        if (user && (user.role === 'participant' || user.role === 'admin')) {
+          try {
+            const rRes = await registrationService.getRegistrationStatus(id);
+            if (rRes.success) {
+              setRegStatus(rRes);
+            }
+          } catch {
+            // Non-blocking for registration status lookup
+          }
+        }
       } catch (err) {
         toast.error('Failed to load hackathon details');
         navigate('/');
@@ -45,7 +59,7 @@ const HackathonDetails = () => {
     };
 
     fetchHackathon();
-  }, [id, navigate]);
+  }, [id, navigate, user]);
 
   // Live Countdown Timer logic
   useEffect(() => {
@@ -188,6 +202,19 @@ const HackathonDetails = () => {
               <div className="px-6 py-3.5 rounded-2xl text-xs font-bold text-purple-300 bg-purple-500/15 border border-purple-500/30 flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-purple-400" />
                 <span>View Only Mode</span>
+              </div>
+            ) : regStatus?.isRegistered ? (
+              <Link
+                to={`/participant/register/${id}`}
+                className="px-6 py-3.5 rounded-2xl text-sm font-bold text-indigo-300 bg-indigo-500/20 border border-indigo-500/40 hover:bg-indigo-500/30 transition-all flex items-center justify-center space-x-2"
+              >
+                <CheckCircle className="w-5 h-5 text-indigo-400" />
+                <span>Registered ({regStatus.registration?.status})</span>
+              </Link>
+            ) : (status === 'Registration Closed' || status === 'Completed' || (!['Registration Open', 'Upcoming'].includes(status)) || new Date() > new Date(registrationDeadline)) ? (
+              <div className="px-6 py-3.5 rounded-2xl text-xs font-bold text-rose-300 bg-rose-500/15 border border-rose-500/30 flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 text-rose-400" />
+                <span>Registration Closed</span>
               </div>
             ) : (
               <Link

@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
 import EmptyState from '../components/EmptyState';
 import { Link } from 'react-router-dom';
+import { getFileUrl } from '../utils/fileUrl';
 
 const CompletedReviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -66,7 +67,7 @@ const CompletedReviews = () => {
                   <div className="flex items-center space-x-3">
                     <img
                       src={
-                        sub?.projectLogo ||
+                        getFileUrl(sub?.projectLogo) ||
                         'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
                       }
                       alt={sub?.projectName}

@@ -21,6 +21,7 @@ import PDFViewer from '../components/PDFViewer';
 import ProjectGallery from '../components/ProjectGallery';
 import ConfirmationModal from '../components/ConfirmationModal';
 import EmptyState from '../components/EmptyState';
+import { getFileUrl } from '../utils/fileUrl';
 
 const MySubmission = () => {
   const [submissions, setSubmissions] = useState([]);
@@ -125,7 +126,7 @@ const MySubmission = () => {
                 <div className="flex items-center space-x-4">
                   <img
                     src={
-                      sub.projectLogo ||
+                      getFileUrl(sub.projectLogo) ||
                       'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80'
                     }
                     alt={sub.projectName}

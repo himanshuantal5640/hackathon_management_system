@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const Submission = require('../models/Submission');
 const Team = require('../models/Team');
 const Hackathon = require('../models/Hackathon');
@@ -445,6 +447,38 @@ const changeSubmissionStatus = async (req, res, next) => {
   }
 };
 
+const getSubmissionFile = async (req, res, next) => {
+  try {
+    const rawFilename = req.params.filename;
+    if (!rawFilename) {
+      return res.status(400).json({ success: false, message: 'Filename required' });
+    }
+
+    const safeFilename = path.basename(rawFilename);
+    const filePath = path.join(__dirname, '../uploads', safeFilename);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ success: false, message: 'File not found' });
+    }
+
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    if (safeFilename.toLowerCase().endsWith('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+      if (req.query.download === '1') {
+        res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"`);
+      } else {
+        res.setHeader('Content-Disposition', `inline; filename="${safeFilename}"`);
+      }
+    }
+
+    res.sendFile(filePath);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createSubmission,
   updateSubmission,
@@ -453,5 +487,6 @@ module.exports = {
   getMySubmission,
   getHackathonSubmissions,
   submitProject,
-  changeSubmissionStatus
+  changeSubmissionStatus,
+  getSubmissionFile
 };
